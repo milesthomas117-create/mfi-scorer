@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Miles Fraser Invitational</title>
+
+<!-- ============================================================
+  SETUP INSTRUCTIONS — READ BEFORE UPLOADING TO WORDPRESS
+  ============================================================
+  1. Go to https://console.firebase.google.com
+  2. Click "Add project" — name it "miles-fraser-invitational"
+  3. Once created, click the </> (Web) icon to add a web app
+  4. Give it a nickname (e.g. "scorer") and click "Register app"
+  5. Copy the firebaseConfig values shown and paste them below
+     replacing each YOUR_... placeholder
+  6. In the Firebase console left menu, go to Firestore Database
+     → Create database → Start in test mode → Choose a region → Done
+  7. Upload this file to WordPress:
+     - Go to Media → Add New and upload your logo image
+     - Copy the image URL and replace YOUR_LOGO_URL below
+     - Add a Custom HTML block to your page and paste the full
+       contents of this file into it
+  ============================================================ -->
+
+<!-- 🔧 STEP 1: Replace these with your Firebase config values -->
+<script>
+  const FIREBASE_CONFIG = {
+    apiKey:            "YOUR_API_KEY",
+    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId:         "YOUR_PROJECT_ID",
+    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId:             "YOUR_APP_ID"
+  };
+
+  // 🔧 STEP 2: Replace with your logo URL from WordPress media library
+  const LOGO_URL = "YOUR_LOGO_URL";
+
+  // 🔧 STEP 3: Optionally change the event details below
+  const EVENT_DATE   = "30 May 2026";
+  const EVENT_VENUE  = "Toot Hill Golf Club · Ongar, Essex";
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;min-height:100vh}
+
+.mfi-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem 3rem}
+
+.mfi-header{text-align:center;padding:1.5rem 1rem 1.25rem;border-bottom:2px solid #1a4a1a;margin-bottom:1.5rem}
+.mfi-logo{max-width:240px;height:auto;display:block;margin:0 auto 0.75rem}
+.mfi-sub{font-size:12px;letter-spacing:0.2em;color:#1a4a1a;text-transform:uppercase;margin-top:4px}
+.mfi-venue{font-size:12px;letter-spacing:0.12em;color:#5a7a5a;text-transform:uppercase;margin-top:3px}
+
+.tabs{display:flex;border-bottom:1px solid #c8b88a;margin-bottom:1.5rem}
+.tab{flex:1;padding:11px;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:0.06em;border:none;cursor:pointer;background:transparent;color:#5a7a5a;transition:all 0.15s;border-bottom:3px solid transparent}
+.tab.active{color:#1a4a1a;border-bottom-color:#1a4a1a;font-weight:500}
+.tab:hover:not(.active){color:#1a4a1a;background:#ece7d8}
+
+.section{display:none}.section.active{display:block}
+
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-bottom:1.25rem}
+.team-btn{padding:11px 8px;border:1px solid #c8b88a;border-radius:2px;background:#fffdf7;cursor:pointer;font-family:'EB Garamond',serif;font-size:14px;color:#3a5a3a;transition:all 0.15s;text-align:center;letter-spacing:0.04em;line-height:1.4}
+.team-btn:hover{background:#ece7d8;border-color:#1a4a1a}
+.team-btn.selected{background:#1a4a1a;color:#f5f0e8;border-color:#1a4a1a}
+.team-btn.done{opacity:0.65}
+
+.card{background:#fffdf7;border:1px solid #c8b88a;border-radius:2px;padding:1.25rem;margin-bottom:1rem}
+.card-title{font-family:'Playfair Display',serif;font-size:18px;color:#1a4a1a;margin-bottom:1rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.score-table{width:100%;border-collapse:collapse;font-family:'EB Garamond',serif}
+.score-table th{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a;padding:7px 4px;text-align:center;border-bottom:1px solid #c8b88a}
+.score-table th:first-child{text-align:left}
+.score-table td{padding:7px 4px;text-align:center;border-bottom:0.5px solid #e8dfc8}
+.score-table tr:last-child td{border-bottom:none}
+.hole-lbl{font-size:14px;font-weight:500;color:#1a4a1a}
+.par-lbl{font-size:13px;color:#8a9a8a}
+
+.score-input{width:46px;height:34px;text-align:center;border:1px solid #c8b88a;border-radius:2px;background:#fff;font-family:'EB Garamond',serif;font-size:17px;color:#1a4a1a}
+.score-input:focus{outline:none;border-color:#1a4a1a;background:#fffdf7}
+.score-input::-webkit-inner-spin-button,.score-input::-webkit-outer-spin-button{opacity:1}
+
+.diff-eagle{color:#085041;background:#d8f0e8;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
+.diff-birdie{color:#0C447C;background:#daeaf8;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
+.diff-par{color:#5a7a5a;font-size:12px}
+.diff-bogey{color:#633806;background:#f5e8d0;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
+.diff-double{color:#791F1F;background:#fae0e0;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
+
+.submit-area{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;padding-top:1rem;border-top:1px solid #c8b88a;gap:12px;flex-wrap:wrap}
+.total-lbl{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a}
+.total-num{font-family:'Playfair Display',serif;font-size:28px;color:#1a4a1a;line-height:1}
+.total-vp{font-size:14px;margin-top:4px}
+.submit-btn{padding:10px 24px;border-radius:2px;background:#1a4a1a;color:#f5f0e8;border:none;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:0.06em;cursor:pointer;transition:background 0.15s;white-space:nowrap}
+.submit-btn:hover{background:#0d2d0d}
+.submit-btn:disabled{background:#c8b88a;color:#8a9a8a;cursor:not-allowed}
+.submitted-badge{font-family:'EB Garamond',serif;font-size:15px;color:#085041;letter-spacing:0.04em;font-style:italic}
+
+.hcap-badge{font-size:11px;background:#f5e8d0;color:#633806;padding:2px 9px;border-radius:2px;letter-spacing:0.04em;font-family:'EB Garamond',serif;white-space:nowrap}
+
+.lb-header-row{display:grid;grid-template-columns:30px 1fr 58px 76px;gap:8px;padding:6px 10px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a;font-family:'EB Garamond',serif}
+.lb-row{display:grid;grid-template-columns:30px 1fr 58px 76px;gap:8px;align-items:center;padding:12px 10px;border-radius:2px;transition:background 0.15s;margin-bottom:3px}
+.lb-row:hover{background:#f0e8d8}
+.lb-row.leader{border-left:3px solid #c8a820;padding-left:7px}
+.lb-pos{font-size:14px;color:#5a7a5a;text-align:center;font-family:'EB Garamond',serif}
+.lb-name{font-family:'Playfair Display',serif;font-size:15px;color:#1a4a1a;display:flex;align-items:center;gap:7px}
+.lb-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.lb-holes{font-size:13px;color:#8a9a8a;text-align:right;font-family:'EB Garamond',serif}
+.lb-score{font-size:18px;text-align:right;font-family:'Playfair Display',serif}
+.lb-divider{border:none;border-top:1px solid #c8b88a;margin:6px 0}
+
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.stat-card{background:#ece7d8;border-radius:2px;padding:12px 10px;border:1px solid #d5c8a8}
+.stat-lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#5a7a5a;margin-bottom:5px;font-family:'EB Garamond',serif}
+.stat-val{font-family:'Playfair Display',serif;font-size:20px;color:#1a4a1a;line-height:1.1}
+.stat-sub{font-size:12px;color:#8a9a8a;font-family:'EB Garamond',serif;margin-top:3px}
+
+.hole-grid{display:flex;gap:5px;flex-wrap:wrap}
+.hp-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'EB Garamond',serif;border:1px solid #c8b88a;color:#8a9a8a}
+
+.sec-lbl{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#5a7a5a;margin-bottom:8px;font-family:'EB Garamond',serif}
+.no-team{font-family:'EB Garamond',serif;font-size:16px;color:#8a9a8a;text-align:center;padding:2.5rem 1rem;font-style:italic}
+
+.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#085041;font-family:'EB Garamond',serif;background:#d8f0e8;padding:3px 9px;border-radius:2px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#085041;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.saving-indicator{font-size:12px;color:#8a9a8a;font-family:'EB Garamond',serif;font-style:italic;min-height:18px;margin-top:6px}
+
+.toast{position:fixed;bottom:20px;right:20px;background:#1a4a1a;color:#f5f0e8;padding:10px 18px;border-radius:2px;font-family:'EB Garamond',serif;font-size:15px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;max-width:280px}
+.toast.show{opacity:1}
+
+.error-banner{background:#fae0e0;border:1px solid #e0b0b0;border-radius:2px;padding:12px 16px;margin-bottom:1rem;font-family:'EB Garamond',serif;font-size:14px;color:#791F1F;display:none}
+.error-banner.show{display:block}
+
+.section-divider{border:none;border-top:1px solid #c8b88a;margin:1rem 0}
+
+@media(max-width:500px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .score-table th:nth-child(4),.score-table td:nth-child(4){display:none}
+  .lb-row,.lb-header-row{grid-template-columns:24px 1fr 50px 60px}
+  .lb-name{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="mfi-wrap">
+
+  <div class="mfi-header">
+    <img class="mfi-logo" id="mfi-logo" src="" alt="The Miles Fraser Invitational">
+    <div class="mfi-sub" id="mfi-date"></div>
+    <div class="mfi-venue" id="mfi-venue-el"></div>
+  </div>
+
+  <div class="error-banner" id="errorBanner">
+    Unable to connect to live scoring. Check your Firebase config above and ensure Firestore is enabled.
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('entry')">Score Entry</button>
+    <button class="tab" onclick="switchTab('dashboard')">Live Leaderboard</button>
+  </div>
+
+  <div id="entry" class="section active">
+    <div class="sec-lbl">Select your team</div>
+    <div class="team-grid" id="teamSelect"></div>
+    <div id="scoreCard"></div>
+  </div>
+
+  <div id="dashboard" class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div class="live-badge"><span class="live-dot"></span>Live scoring</div>
+      <div style="font-family:'EB Garamond',serif;font-size:13px;color:#8a9a8a" id="lastUpdate"></div>
+    </div>
+    <div class="stat-grid" id="statCards"></div>
+    <div class="sec-lbl">Official standings</div>
+    <div class="card" style="padding:0.75rem 0.5rem">
+      <div class="lb-header-row"><span></span><span>Player</span><span style="text-align:right">Thru</span><span style="text-align:right">Score</span></div>
+      <div id="leaderboard"></div>
+    </div>
+    <div class="sec-lbl" style="margin-top:1rem">Hole-by-hole progress</div>
+    <div class="card"><div id="holeProgress" class="hole-grid"></div></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDKs (v9 compat mode — works as plain script tags) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ─── Config ──────────────────────────────────────────────────────────────────
+const TEAMS = [
+  {id:0, name:"John's Team",    color:"#712B13", light:"#FAECE7", handicap:3},
+  {id:1, name:"Miles' Team",   color:"#1a4a1a", light:"#EAF3DE", handicap:0},
+  {id:2, name:"Charlie's Team",color:"#0C447C", light:"#E6F1FB", handicap:0},
+  {id:3, name:"Turns' Team",   color:"#533AB7", light:"#EEEDFE", handicap:0},
+  {id:4, name:"Theo's Team",   color:"#633806", light:"#FAEEDA", handicap:0}
+];
+const PARS  = [4,3,5,4,4,3,5,4,4,5,3,4,4,5,3,4,4,5];
+const HOLES = 18;
+const COLLECTION = "mfi2026";
+
+// Apply config values
+document.getElementById("mfi-logo").src         = LOGO_URL;
+document.getElementById("mfi-date").textContent  = EVENT_DATE;
+document.getElementById("mfi-venue-el").textContent = EVENT_VENUE;
+
+// ─── Firebase init ────────────────────────────────────────────────────────────
+let db = null;
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+} catch(e) {
+  document.getElementById("errorBanner").classList.add("show");
+}
+
+// ─── Local state (mirrors Firestore) ─────────────────────────────────────────
+let state = {
+  selected:  null,
+  scores:    TEAMS.map(() => Array(HOLES).fill(null)),
+  submitted: TEAMS.map(() => false),
+  saving:    false
+};
+
+// ─── Firestore helpers ────────────────────────────────────────────────────────
+function teamDocId(ti){ return `team_${ti}`; }
+
+async function loadAllScores() {
+  if (!db) return;
+  try {
+    const snap = await db.collection(COLLECTION).get();
+    snap.forEach(doc => {
+      const d = doc.data();
+      const ti = parseInt(doc.id.replace("team_",""));
+      if (isNaN(ti) || ti < 0 || ti >= TEAMS.length) return;
+      state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
+      state.submitted[ti] = d.submitted || false;
+    });
+    renderTeamSelect();
+    renderScoreCard();
+    renderDashboard();
+  } catch(e) {
+    document.getElementById("errorBanner").classList.add("show");
+  }
+}
+
+async function saveTeamScores(ti) {
+  if (!db) return;
+  setSaving(true);
+  try {
+    await db.collection(COLLECTION).doc(teamDocId(ti)).set({
+      teamId:    ti,
+      teamName:  TEAMS[ti].name,
+      scores:    state.scores[ti],
+      submitted: state.submitted[ti],
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) {
+    showToast("Save failed — check connection");
+  }
+  setSaving(false);
+}
+
+function setSaving(v) {
+  state.saving = v;
+  const el = document.getElementById("savingIndicator");
+  if (el) el.textContent = v ? "Saving…" : "Saved";
+  if (!v && el) setTimeout(() => { if(el) el.textContent = ""; }, 1500);
+}
+
+// ─── Real-time listener ───────────────────────────────────────────────────────
+function startLiveListener() {
+  if (!db) return;
+  db.collection(COLLECTION).onSnapshot(snap => {
+    snap.docChanges().forEach(change => {
+      const d = change.doc.data();
+      const ti = parseInt(change.doc.id.replace("team_",""));
+      if (isNaN(ti) || ti < 0 || ti >= TEAMS.length) return;
+      state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
+      state.submitted[ti] = d.submitted || false;
+    });
+    renderTeamSelect();
+    if (state.selected !== null) renderScoreCard();
+    if (document.getElementById("dashboard").classList.contains("active")) renderDashboard();
+    const now = new Date();
+    const el = document.getElementById("lastUpdate");
+    if (el) el.textContent = "Updated " + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }, err => {
+    document.getElementById("errorBanner").classList.add("show");
+  });
+}
+
+// ─── Utility ──────────────────────────────────────────────────────────────────
+function vpStr(vp){ return vp === 0 ? "E" : (vp > 0 ? "+" : "") + vp; }
+function toVsPar(s, p){
+  const d = s - p;
+  if (d <= -2) return {label:"Eagle",  cls:"diff-eagle"};
+  if (d === -1) return {label:"Birdie", cls:"diff-birdie"};
+  if (d ===  0) return {label:"Par",    cls:"diff-par"};
+  if (d ===  1) return {label:"Bogey",  cls:"diff-bogey"};
+  return {label: "+" + d,              cls:"diff-double"};
+}
+
+// ─── Render: team selector ────────────────────────────────────────────────────
+function renderTeamSelect() {
+  document.getElementById("teamSelect").innerHTML = TEAMS.map((t,i) => `
+    <button class="team-btn${state.selected===i?" selected":""}${state.submitted[i]?" done":""}"
+      style="${state.selected===i?`background:${t.color};color:#f5f0e8;border-color:${t.color}`:""}"
+      onclick="selectTeam(${i})">
+      ${t.name}${t.handicap?` <small style="opacity:0.8">(+${t.handicap})</small>`:""}${state.submitted[i]?" ✓":""}
+    </button>`).join("");
+}
+
+// ─── Render: score card ───────────────────────────────────────────────────────
+function renderScoreCard() {
+  const el = document.getElementById("scoreCard");
+  const ti = state.selected;
+  if (ti === null) { el.innerHTML = `<div class="no-team">Select a team above to enter scores</div>`; return; }
+
+  const t    = TEAMS[ti];
+  const sc   = state.scores[ti];
+  const done = state.submitted[ti];
+  const played     = sc.filter(s => s !== null);
+  const totRaw     = played.reduce((a,b) => a+b, 0);
+  const parPlayed  = PARS.filter((_,i) => sc[i] !== null).reduce((a,b) => a+b, 0);
+  const netVp      = (totRaw - parPlayed) + t.handicap;
+  const vpColor    = netVp < 0 ? "#0C447C" : netVp > 0 ? "#791F1F" : "#1a4a1a";
+
+  function holeRows(holes) {
+    return holes.map(i => {
+      const s    = sc[i];
+      const diff = s !== null ? toVsPar(s, PARS[i]) : null;
+      const scoreCell = done
+        ? (s !== null ? `<span style="font-size:17px;color:${t.color};font-family:'Playfair Display',serif">${s}</span>` : `<span class="par-lbl">—</span>`)
+        : `<input class="score-input" type="number" min="1" max="15" value="${s??""}" placeholder="—"
+             oninput="updateScore(${ti},${i},this.value)" ${done?"disabled":""}>`;
+      return `<tr>
+        <td><span class="hole-lbl">${i+1}</span></td>
+        <td><span class="par-lbl">${PARS[i]}</span></td>
+        <td>${scoreCell}</td>
+        <td>${diff ? `<span class="${diff.cls}">${diff.label}</span>` : `<span class="par-lbl">—</span>`}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  const front = Array.from({length:9}, (_,i) => i);
+  const back  = Array.from({length:9}, (_,i) => i+9);
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        <div style="width:34px;height:34px;border-radius:50%;background:${t.light};display:flex;align-items:center;justify-content:center;
+          font-family:'Playfair Display',serif;font-size:13px;color:${t.color};flex-shrink:0">
+          ${t.name.replace("'","").slice(0,2).toUpperCase()}</div>
+        ${t.name}
+        ${t.handicap ? `<span class="hcap-badge">+${t.handicap} handicap</span>` : ""}
+      </div>
+
+      <div class="sec-lbl">Front nine</div>
+      <table class="score-table" style="margin-bottom:1rem">
+        <thead><tr><th>Hole</th><th>Par</th><th>Score</th><th>Result</th></tr></thead>
+        <tbody>${holeRows(front)}</tbody>
+      </table>
+
+      <div class="sec-lbl">Back nine</div>
+      <table class="score-table">
+        <thead><tr><th>Hole</th><th>Par</th><th>Score</th><th>Result</th></tr></thead>
+        <tbody>${holeRows(back)}</tbody>
+      </table>
+
+      <div class="submit-area">
+        <div>
+          <div class="total-lbl">Total${t.handicap ? " (net)" : ""}</div>
+          <div class="total-num">${totRaw || "—"}</div>
+          ${totRaw ? `<div class="total-vp" style="color:${vpColor}">${vpStr(netVp)} vs par</div>` : ""}
+          <div class="saving-indicator" id="savingIndicator"></div>
+        </div>
+        ${done
+          ? `<span class="submitted-badge">✓ Card submitted</span>`
+          : `<button class="submit-btn" onclick="submitScores(${ti})">Submit card</button>`
+        }
+      </div>
+    </div>`;
+}
+
+// ─── Render: dashboard ────────────────────────────────────────────────────────
+function renderDashboard() {
+  const rows = TEAMS.map((t, ti) => {
+    const sc      = state.scores[ti];
+    const played  = sc.filter(s => s !== null);
+    const totRaw  = played.reduce((a,b) => a+b, 0);
+    const parP    = PARS.filter((_,i) => sc[i] !== null).reduce((a,b) => a+b, 0);
+    return {...t, holes: played.length, total: totRaw, vsPar: played.length ? (totRaw - parP) + t.handicap : null};
+  }).sort((a,b) => {
+    if (a.holes === 0 && b.holes === 0) return 0;
+    if (a.holes === 0) return 1;
+    if (b.holes === 0) return -1;
+    return a.vsPar - b.vsPar;
+  });
+
+  const leader       = rows[0];
+  const totalHoles   = rows.reduce((a,b) => a + b.holes, 0);
+  const allDiffs     = TEAMS.flatMap((t,ti) => state.scores[ti].map((s,i) => s !== null ? s - PARS[i] : null).filter(x => x !== null));
+  const eagles       = allDiffs.filter(d => d <= -2).length;
+  const birdies      = allDiffs.filter(d => d === -1).length;
+
+  document.getElementById("statCards").innerHTML = `
+    <div class="stat-card">
+      <div class="stat-lbl">Leading</div>
+      <div class="stat-val" style="font-size:15px;color:${leader.color}">${leader.holes ? leader.name : "TBD"}</div>
+      <div class="stat-sub">${leader.holes && leader.vsPar !== null ? vpStr(leader.vsPar) + " vs par" : "No scores yet"}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Holes played</div>
+      <div class="stat-val">${totalHoles}</div>
+      <div class="stat-sub">across all teams</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Eagles · Birdies</div>
+      <div class="stat-val">${eagles} · ${birdies}</div>
+      <div class="stat-sub">all teams</div>
+    </div>`;
+
+  const medals = ["🥇","🥈","🥉","4th","5th"];
+  document.getElementById("leaderboard").innerHTML = rows.map((t, pos) => {
+    const vp      = t.vsPar;
+    const sc      = vp === null ? "—" : vpStr(vp);
+    const scColor = vp === null ? "#8a9a8a" : vp < 0 ? "#0C447C" : vp > 0 ? "#791F1F" : "#1a4a1a";
+    return `
+      <div class="lb-row${pos === 0 ? " leader" : ""}">
+        <div class="lb-pos">${medals[pos]}</div>
+        <div class="lb-name">
+          <div class="lb-dot" style="background:${t.color}"></div>
+          ${t.name}${t.handicap ? ` <span style="font-size:11px;color:#8a9a8a">(+${t.handicap})</span>` : ""}
+        </div>
+        <div class="lb-holes">${t.holes}/18</div>
+        <div class="lb-score" style="color:${scColor}">${sc}</div>
+      </div>
+      ${pos === 0 ? `<hr class="lb-divider">` : ""}`;
+  }).join("");
+
+  const holeStatus = Array.from({length: HOLES}, (_, hi) => {
+    const vals = TEAMS.map((_,ti) => state.scores[ti][hi]).filter(s => s !== null);
+    if (!vals.length) return "empty";
+    const avg = vals.reduce((a,b) => a+b, 0) / vals.length - PARS[hi];
+    return avg < -0.5 ? "under" : avg > 0.5 ? "over" : "par";
+  });
+
+  document.getElementById("holeProgress").innerHTML = holeStatus.map((s, i) => {
+    const bg = s==="under"?"#d8f0e8":s==="over"?"#fae0e0":s==="par"?"#daefd8":"transparent";
+    const tc = s==="under"?"#085041":s==="over"?"#791F1F":s==="par"?"#27500A":"#8a9a8a";
+    return `<div class="hp-dot" style="background:${bg};color:${tc};border-color:${s==="empty"?"#c8b88a":bg}">${i+1}</div>`;
+  }).join("");
+}
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", ["entry","dashboard"][i] === tab));
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+  if (tab === "dashboard") renderDashboard();
+}
+
+function selectTeam(i) {
+  state.selected = i;
+  renderTeamSelect();
+  renderScoreCard();
+}
+
+let saveTimer = null;
+function updateScore(ti, hi, val) {
+  const n = parseInt(val);
+  state.scores[ti][hi] = (val === "" || isNaN(n) || n < 1) ? null : Math.min(n, 15);
+  renderScoreCard();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveTeamScores(ti), 800);
+}
+
+async function submitScores(ti) {
+  state.submitted[ti] = true;
+  renderTeamSelect();
+  renderScoreCard();
+  await saveTeamScores(ti);
+  showToast(TEAMS[ti].name + " — card submitted");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+renderTeamSelect();
+renderScoreCard();
+renderDashboard();
+loadAllScores().then(() => startLiveListener());
+</script>
+</body>
+</html>
