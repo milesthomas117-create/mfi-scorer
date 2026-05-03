@@ -2,28 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>The Miles Fraser Invitational</title>
-
-<!-- ============================================================
-  SETUP INSTRUCTIONS — READ BEFORE UPLOADING TO WORDPRESS
-  ============================================================
-  1. Go to https://console.firebase.google.com
-  2. Click "Add project" — name it "miles-fraser-invitational"
-  3. Once created, click the </> (Web) icon to add a web app
-  4. Give it a nickname (e.g. "scorer") and click "Register app"
-  5. Copy the firebaseConfig values shown and paste them below
-     replacing each YOUR_... placeholder
-  6. In the Firebase console left menu, go to Firestore Database
-     → Create database → Start in test mode → Choose a region → Done
-  7. Upload this file to WordPress:
-     - Go to Media → Add New and upload your logo image
-     - Copy the image URL and replace YOUR_LOGO_URL below
-     - Add a Custom HTML block to your page and paste the full
-       contents of this file into it
-  ============================================================ -->
-
-<!-- 🔧 STEP 1: Replace these with your Firebase config values -->
 <script>
   const FIREBASE_CONFIG = {
     apiKey:            "YOUR_API_KEY",
@@ -33,475 +13,684 @@
     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
     appId:             "YOUR_APP_ID"
   };
+  const EVENT_DATE  = "30 May 2026";
+  const EVENT_VENUE = "Toot Hill Golf Club · Ongar, Essex";
 
-  // 🔧 STEP 2: Replace with your logo URL from WordPress media library
-  const LOGO_URL = "YOUR_LOGO_URL";
-
-  // 🔧 STEP 3: Optionally change the event details below
-  const EVENT_DATE   = "30 May 2026";
-  const EVENT_VENUE  = "Toot Hill Golf Club · Ongar, Essex";
+  // 🔧 LOGO: Replace with your WordPress media library URL
+  // e.g. "https://yoursite.com/wp-content/uploads/2026/05/mfi-logo.png"
+  // Leave as "" to show the text title instead
+  const LOGO_URL = "";
 </script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
 
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;min-height:100vh}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 
-.mfi-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.wrap{max-width:640px;margin:0 auto;padding:0 0 5rem}
 
-.mfi-header{text-align:center;padding:1.5rem 1rem 1.25rem;border-bottom:2px solid #1a4a1a;margin-bottom:1.5rem}
-.mfi-logo{max-width:240px;height:auto;display:block;margin:0 auto 0.75rem}
-.mfi-sub{font-size:12px;letter-spacing:0.2em;color:#1a4a1a;text-transform:uppercase;margin-top:4px}
-.mfi-venue{font-size:12px;letter-spacing:0.12em;color:#5a7a5a;text-transform:uppercase;margin-top:3px}
+/* ── Header ── */
+.hdr{text-align:center;padding:1.25rem 1rem 1rem;border-bottom:2px solid #1a4a1a}
+.hdr-logo{max-width:220px;height:auto;display:block;margin:0 auto 0.5rem}
+.hdr-the{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:0.28em;color:#5a7a5a;text-transform:uppercase;margin-bottom:4px}
+.hdr-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#1a4a1a;letter-spacing:0.03em;line-height:1.1}
+.hdr-italic{font-family:'Playfair Display',serif;font-size:20px;font-style:italic;color:#1a4a1a}
+.hdr-date{font-size:11px;letter-spacing:0.18em;color:#1a4a1a;text-transform:uppercase;margin-top:6px}
+.hdr-venue{font-size:11px;letter-spacing:0.1em;color:#5a7a5a;text-transform:uppercase;margin-top:2px}
 
-.tabs{display:flex;border-bottom:1px solid #c8b88a;margin-bottom:1.5rem}
-.tab{flex:1;padding:11px;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:0.06em;border:none;cursor:pointer;background:transparent;color:#5a7a5a;transition:all 0.15s;border-bottom:3px solid transparent}
+/* ── Login screen ── */
+.login-screen{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem}
+.login-card{background:#fffdf7;border:1px solid #c8b88a;border-radius:6px;padding:2rem 1.75rem;width:100%;max-width:360px}
+.login-title{font-family:'Playfair Display',serif;font-size:20px;color:#1a4a1a;margin-bottom:0.25rem}
+.login-sub{font-family:'EB Garamond',serif;font-size:14px;color:#5a7a5a;margin-bottom:1.5rem;font-style:italic}
+.login-label{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#5a7a5a;font-family:'EB Garamond',serif;display:block;margin-bottom:5px}
+.login-input{width:100%;padding:12px 14px;border:1px solid #c8b88a;border-radius:4px;background:#fff;font-family:'EB Garamond',serif;font-size:16px;color:#1a4a1a;margin-bottom:1rem;-webkit-appearance:none}
+.login-input:focus{outline:none;border-color:#1a4a1a}
+.login-btn{width:100%;padding:13px;background:#1a4a1a;color:#f5f0e8;border:none;border-radius:4px;font-family:'EB Garamond',serif;font-size:17px;letter-spacing:0.06em;cursor:pointer;-webkit-appearance:none;margin-top:0.25rem}
+.login-btn:active{background:#0d2d0d}
+.login-error{font-family:'EB Garamond',serif;font-size:14px;color:#791F1F;font-style:italic;text-align:center;margin-top:0.75rem;min-height:20px}
+.login-offline{font-family:'EB Garamond',serif;font-size:12px;color:#8a9a8a;text-align:center;margin-top:1rem;font-style:italic}
+
+/* ── Tabs ── */
+.tabs{display:flex;border-bottom:1px solid #c8b88a;background:#f5f0e8;position:sticky;top:0;z-index:50}
+.tab{flex:1;padding:13px 8px;font-family:'EB Garamond',serif;font-size:15px;letter-spacing:0.05em;border:none;cursor:pointer;background:transparent;color:#5a7a5a;border-bottom:3px solid transparent;transition:all 0.15s}
 .tab.active{color:#1a4a1a;border-bottom-color:#1a4a1a;font-weight:500}
-.tab:hover:not(.active){color:#1a4a1a;background:#ece7d8}
 
-.section{display:none}.section.active{display:block}
+/* ── User bar ── */
+.user-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 0.875rem;background:#ece7d8;border-bottom:1px solid #d5c8a8}
+.user-bar-name{font-family:'Playfair Display',serif;font-size:14px;color:#1a4a1a;display:flex;align-items:center;gap:7px}
+.user-dot{width:8px;height:8px;border-radius:50%}
+.user-bar-status{font-family:'EB Garamond',serif;font-size:12px;color:#5a7a5a;display:flex;align-items:center;gap:10px}
+.logout-btn{font-family:'EB Garamond',serif;font-size:12px;color:#791F1F;background:none;border:none;cursor:pointer;padding:0;letter-spacing:0.04em;text-decoration:underline}
+.sync-badge{font-size:11px;color:#085041;background:#d8f0e8;padding:2px 7px;border-radius:3px}
+.offline-badge{font-size:11px;color:#633806;background:#f5e8d0;padding:2px 7px;border-radius:3px}
 
-.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-bottom:1.25rem}
-.team-btn{padding:11px 8px;border:1px solid #c8b88a;border-radius:2px;background:#fffdf7;cursor:pointer;font-family:'EB Garamond',serif;font-size:14px;color:#3a5a3a;transition:all 0.15s;text-align:center;letter-spacing:0.04em;line-height:1.4}
-.team-btn:hover{background:#ece7d8;border-color:#1a4a1a}
-.team-btn.selected{background:#1a4a1a;color:#f5f0e8;border-color:#1a4a1a}
-.team-btn.done{opacity:0.65}
+.section{display:none;padding:1rem 0.875rem}
+.section.active{display:block}
 
-.card{background:#fffdf7;border:1px solid #c8b88a;border-radius:2px;padding:1.25rem;margin-bottom:1rem}
-.card-title{font-family:'Playfair Display',serif;font-size:18px;color:#1a4a1a;margin-bottom:1rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* ── Score card ── */
+.card{background:#fffdf7;border:1px solid #c8b88a;border-radius:4px;padding:1rem;margin-bottom:0.875rem}
+.card-title{font-family:'Playfair Display',serif;font-size:17px;color:#1a4a1a;margin-bottom:0.875rem;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.hole-list{display:flex;flex-direction:column}
+.hole-row{display:grid;grid-template-columns:2.2rem 3rem 1fr auto;align-items:center;gap:10px;padding:9px 2px;border-bottom:0.5px solid #e8dfc8}
+.hole-row:last-child{border-bottom:none}
+.hole-num{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#1a4a1a;text-align:center}
+.hole-par{font-size:12px;color:#8a9a8a;text-align:center;line-height:1.3}
+.score-btn{width:56px;height:44px;border:1px solid #c8b88a;border-radius:4px;background:#fff;font-family:'Playfair Display',serif;font-size:20px;color:#1a4a1a;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;-webkit-appearance:none}
+.score-btn.no-score{font-size:13px;font-family:'EB Garamond',serif;color:#aaa;letter-spacing:0.04em}
+.diff-pill{font-size:12px;padding:4px 8px;border-radius:3px;white-space:nowrap;min-width:56px;text-align:center;font-family:'EB Garamond',serif}
+.diff-eagle{color:#085041;background:#d8f0e8}
+.diff-birdie{color:#0C447C;background:#daeaf8}
+.diff-par{color:#5a7a5a;background:#ece7d8}
+.diff-bogey{color:#633806;background:#f5e8d0}
+.diff-double{color:#791F1F;background:#fae0e0}
+.diff-empty{color:#ccc}
+.nine-lbl{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#5a7a5a;padding:8px 2px 4px;font-family:'EB Garamond',serif}
+.submit-area{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:1rem;border-top:1px solid #c8b88a;gap:12px}
+.total-lbl{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#5a7a5a}
+.total-num{font-family:'Playfair Display',serif;font-size:30px;color:#1a4a1a;line-height:1}
+.total-vp{font-size:14px;margin-top:3px}
+.submit-btn{padding:13px 22px;border-radius:4px;background:#1a4a1a;color:#f5f0e8;border:none;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:0.05em;cursor:pointer;-webkit-appearance:none}
+.submitted-badge{font-family:'EB Garamond',serif;font-size:15px;color:#085041;font-style:italic}
+.saving-ind{font-size:12px;color:#8a9a8a;font-family:'EB Garamond',serif;font-style:italic;min-height:16px;margin-top:4px}
+.hcap-badge{font-size:11px;background:#f5e8d0;color:#633806;padding:2px 8px;border-radius:3px;font-family:'EB Garamond',serif}
+.lock-notice{background:#f5e8d0;border:1px solid #d5c8a8;border-radius:3px;padding:10px 12px;margin-bottom:0.875rem;font-family:'EB Garamond',serif;font-size:14px;color:#633806;font-style:italic}
 
-.score-table{width:100%;border-collapse:collapse;font-family:'EB Garamond',serif}
-.score-table th{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a;padding:7px 4px;text-align:center;border-bottom:1px solid #c8b88a}
-.score-table th:first-child{text-align:left}
-.score-table td{padding:7px 4px;text-align:center;border-bottom:0.5px solid #e8dfc8}
-.score-table tr:last-child td{border-bottom:none}
-.hole-lbl{font-size:14px;font-weight:500;color:#1a4a1a}
-.par-lbl{font-size:13px;color:#8a9a8a}
-
-.score-input{width:46px;height:34px;text-align:center;border:1px solid #c8b88a;border-radius:2px;background:#fff;font-family:'EB Garamond',serif;font-size:17px;color:#1a4a1a}
-.score-input:focus{outline:none;border-color:#1a4a1a;background:#fffdf7}
-.score-input::-webkit-inner-spin-button,.score-input::-webkit-outer-spin-button{opacity:1}
-
-.diff-eagle{color:#085041;background:#d8f0e8;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
-.diff-birdie{color:#0C447C;background:#daeaf8;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
-.diff-par{color:#5a7a5a;font-size:12px}
-.diff-bogey{color:#633806;background:#f5e8d0;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
-.diff-double{color:#791F1F;background:#fae0e0;padding:2px 7px;border-radius:2px;font-size:12px;letter-spacing:0.03em}
-
-.submit-area{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;padding-top:1rem;border-top:1px solid #c8b88a;gap:12px;flex-wrap:wrap}
-.total-lbl{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a}
-.total-num{font-family:'Playfair Display',serif;font-size:28px;color:#1a4a1a;line-height:1}
-.total-vp{font-size:14px;margin-top:4px}
-.submit-btn{padding:10px 24px;border-radius:2px;background:#1a4a1a;color:#f5f0e8;border:none;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:0.06em;cursor:pointer;transition:background 0.15s;white-space:nowrap}
-.submit-btn:hover{background:#0d2d0d}
-.submit-btn:disabled{background:#c8b88a;color:#8a9a8a;cursor:not-allowed}
-.submitted-badge{font-family:'EB Garamond',serif;font-size:15px;color:#085041;letter-spacing:0.04em;font-style:italic}
-
-.hcap-badge{font-size:11px;background:#f5e8d0;color:#633806;padding:2px 9px;border-radius:2px;letter-spacing:0.04em;font-family:'EB Garamond',serif;white-space:nowrap}
-
-.lb-header-row{display:grid;grid-template-columns:30px 1fr 58px 76px;gap:8px;padding:6px 10px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a;font-family:'EB Garamond',serif}
-.lb-row{display:grid;grid-template-columns:30px 1fr 58px 76px;gap:8px;align-items:center;padding:12px 10px;border-radius:2px;transition:background 0.15s;margin-bottom:3px}
-.lb-row:hover{background:#f0e8d8}
+/* ── Leaderboard ── */
+.lb-hdr{display:grid;grid-template-columns:28px 1fr 48px 64px;gap:6px;padding:6px 10px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7a5a;font-family:'EB Garamond',serif}
+.lb-row{display:grid;grid-template-columns:28px 1fr 48px 64px;gap:6px;align-items:center;padding:13px 10px;border-radius:3px;margin-bottom:2px}
 .lb-row.leader{border-left:3px solid #c8a820;padding-left:7px}
-.lb-pos{font-size:14px;color:#5a7a5a;text-align:center;font-family:'EB Garamond',serif}
-.lb-name{font-family:'Playfair Display',serif;font-size:15px;color:#1a4a1a;display:flex;align-items:center;gap:7px}
+.lb-pos{font-size:15px;color:#5a7a5a;text-align:center}
+.lb-name{font-family:'Playfair Display',serif;font-size:14px;color:#1a4a1a;display:flex;align-items:center;gap:7px}
 .lb-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .lb-holes{font-size:13px;color:#8a9a8a;text-align:right;font-family:'EB Garamond',serif}
 .lb-score{font-size:18px;text-align:right;font-family:'Playfair Display',serif}
-.lb-divider{border:none;border-top:1px solid #c8b88a;margin:6px 0}
-
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
-.stat-card{background:#ece7d8;border-radius:2px;padding:12px 10px;border:1px solid #d5c8a8}
-.stat-lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#5a7a5a;margin-bottom:5px;font-family:'EB Garamond',serif}
-.stat-val{font-family:'Playfair Display',serif;font-size:20px;color:#1a4a1a;line-height:1.1}
-.stat-sub{font-size:12px;color:#8a9a8a;font-family:'EB Garamond',serif;margin-top:3px}
-
+.lb-div{border:none;border-top:1px solid #c8b88a;margin:5px 0}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.stat-card{background:#ece7d8;border-radius:3px;padding:11px 8px;border:1px solid #d5c8a8}
+.stat-lbl{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#5a7a5a;margin-bottom:4px;font-family:'EB Garamond',serif}
+.stat-val{font-family:'Playfair Display',serif;font-size:18px;color:#1a4a1a;line-height:1.1}
+.stat-sub{font-size:11px;color:#8a9a8a;font-family:'EB Garamond',serif;margin-top:2px}
 .hole-grid{display:flex;gap:5px;flex-wrap:wrap}
-.hp-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'EB Garamond',serif;border:1px solid #c8b88a;color:#8a9a8a}
-
+.hp-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'EB Garamond',serif;border:1px solid #c8b88a;color:#8a9a8a}
 .sec-lbl{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#5a7a5a;margin-bottom:8px;font-family:'EB Garamond',serif}
-.no-team{font-family:'EB Garamond',serif;font-size:16px;color:#8a9a8a;text-align:center;padding:2.5rem 1rem;font-style:italic}
-
-.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#085041;font-family:'EB Garamond',serif;background:#d8f0e8;padding:3px 9px;border-radius:2px}
+.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#085041;font-family:'EB Garamond',serif;background:#d8f0e8;padding:3px 9px;border-radius:3px}
 .live-dot{width:7px;height:7px;border-radius:50%;background:#085041;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
-.saving-indicator{font-size:12px;color:#8a9a8a;font-family:'EB Garamond',serif;font-style:italic;min-height:18px;margin-top:6px}
+/* ── Picker ── */
+.picker-overlay{position:fixed;inset:0;background:rgba(15,25,15,0.6);z-index:1000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.22s}
+.picker-overlay.open{opacity:1;pointer-events:all}
+.picker-sheet{background:#fffdf7;border-radius:14px 14px 0 0;width:100%;max-width:500px;padding-bottom:max(env(safe-area-inset-bottom),16px)}
+.picker-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid #e8dfc8}
+.picker-hole-info{font-family:'Playfair Display',serif;font-size:17px;color:#1a4a1a}
+.picker-hole-sub{font-size:13px;color:#5a7a5a;font-family:'EB Garamond',serif;margin-top:2px}
+.picker-done{background:#1a4a1a;color:#f5f0e8;border:none;border-radius:4px;padding:9px 22px;font-family:'EB Garamond',serif;font-size:16px;cursor:pointer;-webkit-appearance:none}
+.picker-drum{position:relative;height:210px;overflow:hidden;margin:0 20px}
+.picker-drum-inner{overflow-y:scroll;height:210px;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.picker-drum-inner::-webkit-scrollbar{display:none}
+.picker-item{height:54px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-family:'Playfair Display',serif;font-size:24px;color:#bbb;cursor:pointer;user-select:none;transition:color 0.08s,font-size 0.08s}
+.picker-item.active{color:#1a4a1a;font-size:34px}
+.picker-highlight{position:absolute;top:50%;left:0;right:0;height:54px;transform:translateY(-50%);border-top:1px solid #c8b88a;border-bottom:1px solid #c8b88a;pointer-events:none;border-radius:2px;background:rgba(200,184,138,0.1)}
+.picker-footer{text-align:center;padding:8px 0 4px;font-family:'EB Garamond',serif;font-size:15px;min-height:30px;color:#3a5a3a}
 
-.toast{position:fixed;bottom:20px;right:20px;background:#1a4a1a;color:#f5f0e8;padding:10px 18px;border-radius:2px;font-family:'EB Garamond',serif;font-size:15px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;max-width:280px}
-.toast.show{opacity:1}
-
-.error-banner{background:#fae0e0;border:1px solid #e0b0b0;border-radius:2px;padding:12px 16px;margin-bottom:1rem;font-family:'EB Garamond',serif;font-size:14px;color:#791F1F;display:none}
+.error-banner{background:#fae0e0;border:1px solid #e0b0b0;border-radius:3px;padding:12px 14px;margin:0.875rem 0.875rem 0;font-family:'EB Garamond',serif;font-size:14px;color:#791F1F;display:none}
 .error-banner.show{display:block}
-
-.section-divider{border:none;border-top:1px solid #c8b88a;margin:1rem 0}
-
-@media(max-width:500px){
-  .stat-grid{grid-template-columns:repeat(2,1fr)}
-  .score-table th:nth-child(4),.score-table td:nth-child(4){display:none}
-  .lb-row,.lb-header-row{grid-template-columns:24px 1fr 50px 60px}
-  .lb-name{font-size:14px}
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a4a1a;color:#f5f0e8;padding:11px 20px;border-radius:4px;font-family:'EB Garamond',serif;font-size:15px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="mfi-wrap">
-
-  <div class="mfi-header">
-    <img class="mfi-logo" id="mfi-logo" src="" alt="The Miles Fraser Invitational">
-    <div class="mfi-sub" id="mfi-date"></div>
-    <div class="mfi-venue" id="mfi-venue-el"></div>
+  <!-- Header -->
+  <div class="hdr" id="hdr">
+    <div id="hdr-content"></div>
+    <div class="hdr-date" id="mfi-date"></div>
+    <div class="hdr-venue" id="mfi-venue"></div>
   </div>
 
-  <div class="error-banner" id="errorBanner">
-    Unable to connect to live scoring. Check your Firebase config above and ensure Firestore is enabled.
-  </div>
+  <div class="error-banner" id="errorBanner">Unable to connect to Firebase. Scores are being saved locally and will sync when connection is restored.</div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('entry')">Score Entry</button>
-    <button class="tab" onclick="switchTab('dashboard')">Live Leaderboard</button>
-  </div>
-
-  <div id="entry" class="section active">
-    <div class="sec-lbl">Select your team</div>
-    <div class="team-grid" id="teamSelect"></div>
-    <div id="scoreCard"></div>
-  </div>
-
-  <div id="dashboard" class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
-      <div class="live-badge"><span class="live-dot"></span>Live scoring</div>
-      <div style="font-family:'EB Garamond',serif;font-size:13px;color:#8a9a8a" id="lastUpdate"></div>
+  <!-- Login screen -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-title">Welcome</div>
+      <div class="login-sub">Sign in to begin scoring</div>
+      <label class="login-label" for="unInput">Username</label>
+      <input class="login-input" id="unInput" type="text" autocomplete="username" autocapitalize="none" placeholder="Enter your name">
+      <label class="login-label" for="pwInput">Password</label>
+      <input class="login-input" id="pwInput" type="password" autocomplete="current-password" placeholder="Enter your password">
+      <button class="login-btn" onclick="doLogin()">Sign in</button>
+      <div class="login-error" id="loginError"></div>
+      <div class="login-offline" id="loginOffline"></div>
     </div>
-    <div class="stat-grid" id="statCards"></div>
-    <div class="sec-lbl">Official standings</div>
-    <div class="card" style="padding:0.75rem 0.5rem">
-      <div class="lb-header-row"><span></span><span>Player</span><span style="text-align:right">Thru</span><span style="text-align:right">Score</span></div>
-      <div id="leaderboard"></div>
+  </div>
+
+  <!-- App (shown after login) -->
+  <div id="appScreen" style="display:none">
+    <div class="user-bar">
+      <div class="user-bar-name">
+        <div class="user-dot" id="userDot"></div>
+        <span id="userBarName"></span>
+      </div>
+      <div class="user-bar-status">
+        <span id="syncBadge"></span>
+        <button class="logout-btn" onclick="doLogout()">Sign out</button>
+      </div>
     </div>
-    <div class="sec-lbl" style="margin-top:1rem">Hole-by-hole progress</div>
-    <div class="card"><div id="holeProgress" class="hole-grid"></div></div>
+
+    <div class="tabs" id="tabsContainer">
+      <button class="tab active" id="tab-entry" onclick="switchTab('entry')">Score Entry</button>
+      <button class="tab" id="tab-dashboard" onclick="switchTab('dashboard')">Live Leaderboard</button>
+    </div>
+
+    <div id="entry" class="section active">
+      <div id="scoreCard"></div>
+    </div>
+
+    <div id="dashboard" class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+        <div class="live-badge"><span class="live-dot"></span>Live scoring</div>
+        <div style="font-family:'EB Garamond',serif;font-size:12px;color:#8a9a8a" id="lastUpdate"></div>
+      </div>
+      <div class="stat-grid" id="statCards"></div>
+      <div class="sec-lbl">Official standings</div>
+      <div class="card" style="padding:0.75rem 0.5rem">
+        <div class="lb-hdr"><span></span><span>Team</span><span style="text-align:right">Thru</span><span style="text-align:right">Score</span></div>
+        <div id="leaderboard"></div>
+      </div>
+      <div class="sec-lbl" style="margin-top:1rem">Hole-by-hole</div>
+      <div class="card"><div id="holeProgress" class="hole-grid"></div></div>
+    </div>
   </div>
 
 </div>
 
+<!-- Picker -->
+<div class="picker-overlay" id="pickerOverlay" onclick="overlayClick(event)">
+  <div class="picker-sheet" onclick="event.stopPropagation()">
+    <div class="picker-header">
+      <div>
+        <div class="picker-hole-info" id="pickerTitle">Hole 1</div>
+        <div class="picker-hole-sub" id="pickerSub">Par 4</div>
+      </div>
+      <button class="picker-done" onclick="closePicker()">Done</button>
+    </div>
+    <div class="picker-drum">
+      <div class="picker-highlight"></div>
+      <div class="picker-drum-inner" id="drumInner"></div>
+    </div>
+    <div class="picker-footer" id="pickerFooter"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDKs (v9 compat mode — works as plain script tags) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
 <script>
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 const TEAMS = [
-  {id:0, name:"John's Team",    color:"#712B13", light:"#FAECE7", handicap:3},
-  {id:1, name:"Miles' Team",   color:"#1a4a1a", light:"#EAF3DE", handicap:0},
-  {id:2, name:"Charlie's Team",color:"#0C447C", light:"#E6F1FB", handicap:0},
-  {id:3, name:"Turns' Team",   color:"#533AB7", light:"#EEEDFE", handicap:0},
-  {id:4, name:"Theo's Team",   color:"#633806", light:"#FAEEDA", handicap:0}
+  {id:0, name:"John's Team",    username:"john",    password:"John",    color:"#712B13", light:"#FAECE7", handicap:3},
+  {id:1, name:"Miles' Team",   username:"miles",   password:"Miles",   color:"#1a4a1a", light:"#EAF3DE", handicap:0},
+  {id:2, name:"Charlie's Team",username:"charlie", password:"Charlie", color:"#0C447C", light:"#E6F1FB", handicap:0},
+  {id:3, name:"Turns' Team",   username:"turns",   password:"Turns",   color:"#533AB7", light:"#EEEDFE", handicap:0},
+  {id:4, name:"Theo's Team",   username:"theo",    password:"Theo",    color:"#633806", light:"#FAEEDA", handicap:0}
 ];
-const PARS  = [4,3,5,4,4,3,5,4,4,5,3,4,4,5,3,4,4,5];
-const HOLES = 18;
-const COLLECTION = "mfi2026";
+const PARS  = [4,4,3,4,4,3,5,4,4,4,5,3,4,4,3,5,3,4];
+const HOLES = 18, LEADERBOARD_LOCK_HOLE = 15, COLLECTION = "mfi2026";
+const SMIN = 1, SMAX = 12, ITEM_H = 54, PAD = 2;
+const CACHE_KEY = ti => "mfi2026_team_" + ti;
+const SESSION_KEY = "mfi2026_session";
 
-// Apply config values
-document.getElementById("mfi-logo").src         = LOGO_URL;
+// ─── State ────────────────────────────────────────────────────────────────────
+let db = null, isOnline = true, liveUnsub = null;
+let currentTeam = null; // logged-in team index
+let state = {
+  scores:    TEAMS.map(() => Array(HOLES).fill(null)),
+  submitted: TEAMS.map(() => false)
+};
+let pTeam = null, pHole = null, pScrollTimer = null;
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
 document.getElementById("mfi-date").textContent  = EVENT_DATE;
-document.getElementById("mfi-venue-el").textContent = EVENT_VENUE;
+document.getElementById("mfi-venue").textContent = EVENT_VENUE;
 
-// ─── Firebase init ────────────────────────────────────────────────────────────
-let db = null;
+// Render header (logo or text)
+const hdrContent = document.getElementById("hdr-content");
+if (LOGO_URL) {
+  hdrContent.innerHTML = `<img class="hdr-logo" src="${LOGO_URL}" alt="The Miles Fraser Invitational">`;
+} else {
+  hdrContent.innerHTML = `
+    <div class="hdr-the">The</div>
+    <div class="hdr-title">Miles Fraser</div>
+    <div class="hdr-italic">Invitational</div>`;
+}
+
+// Firebase
 try {
   firebase.initializeApp(FIREBASE_CONFIG);
   db = firebase.firestore();
+  db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 } catch(e) {
+  isOnline = false;
   document.getElementById("errorBanner").classList.add("show");
 }
 
-// ─── Local state (mirrors Firestore) ─────────────────────────────────────────
-let state = {
-  selected:  null,
-  scores:    TEAMS.map(() => Array(HOLES).fill(null)),
-  submitted: TEAMS.map(() => false),
-  saving:    false
-};
+// Monitor online/offline
+window.addEventListener("online",  () => { isOnline=true;  updateSyncBadge(); tryFlushCache(); });
+window.addEventListener("offline", () => { isOnline=false; updateSyncBadge(); });
 
-// ─── Firestore helpers ────────────────────────────────────────────────────────
-function teamDocId(ti){ return `team_${ti}`; }
+// ─── Local cache helpers ──────────────────────────────────────────────────────
+function saveToCache(ti) {
+  try {
+    localStorage.setItem(CACHE_KEY(ti), JSON.stringify({
+      scores:    state.scores[ti],
+      submitted: state.submitted[ti],
+      savedAt:   Date.now()
+    }));
+  } catch(e) {}
+}
 
+function loadFromCache(ti) {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY(ti));
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
+    state.submitted[ti] = d.submitted || false;
+    return true;
+  } catch(e) { return false; }
+}
+
+function clearCache(ti) {
+  try { localStorage.removeItem(CACHE_KEY(ti)); } catch(e) {}
+}
+
+// Restore session (stay logged in across refreshes)
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const { ti } = JSON.parse(raw);
+    if (ti !== undefined && ti >= 0 && ti < TEAMS.length) {
+      currentTeam = ti;
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+function saveSession(ti) {
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({ti})); } catch(e) {}
+}
+
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+}
+
+// Flush any cached scores back to Firebase when we come back online
+async function tryFlushCache() {
+  if (!db || !isOnline) return;
+  for (let ti = 0; ti < TEAMS.length; ti++) {
+    const raw = localStorage.getItem(CACHE_KEY(ti));
+    if (!raw) continue;
+    try {
+      const d = JSON.parse(raw);
+      await db.collection(COLLECTION).doc("team_"+ti).set({
+        teamId: ti, teamName: TEAMS[ti].name,
+        scores: d.scores, submitted: d.submitted,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      clearCache(ti);
+    } catch(e) {}
+  }
+}
+
+// ─── Login ────────────────────────────────────────────────────────────────────
+function doLogin() {
+  const un = document.getElementById("unInput").value.trim().toLowerCase();
+  const pw = document.getElementById("pwInput").value.trim();
+  const team = TEAMS.find(t => t.username === un && t.password === pw);
+  if (!team) {
+    document.getElementById("loginError").textContent = "Incorrect username or password.";
+    document.getElementById("pwInput").value = "";
+    return;
+  }
+  currentTeam = team.id;
+  saveSession(currentTeam);
+  launchApp();
+}
+
+// Allow pressing Enter on password field
+document.getElementById("pwInput").addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
+document.getElementById("unInput").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("pwInput").focus(); });
+
+function doLogout() {
+  if (liveUnsub) { liveUnsub(); liveUnsub = null; }
+  clearSession();
+  currentTeam = null;
+  document.getElementById("appScreen").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("unInput").value = "";
+  document.getElementById("pwInput").value = "";
+  document.getElementById("loginError").textContent = "";
+}
+
+async function launchApp() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+
+  const t = TEAMS[currentTeam];
+  document.getElementById("userBarName").textContent = t.name;
+  document.getElementById("userDot").style.background = t.color;
+  updateSyncBadge();
+
+  // Load from cache first (instant, offline-safe)
+  for (let ti = 0; ti < TEAMS.length; ti++) loadFromCache(ti);
+
+  // Then load from Firebase (overwrites cache with latest)
+  await loadAllScores();
+  startLiveListener();
+  renderTabs();
+  renderScoreCard();
+  renderDashboard();
+}
+
+function updateSyncBadge() {
+  const el = document.getElementById("syncBadge");
+  if (!el) return;
+  el.className = isOnline ? "sync-badge" : "offline-badge";
+  el.textContent = isOnline ? "● Online" : "○ Offline — saving locally";
+}
+
+// ─── Firebase ─────────────────────────────────────────────────────────────────
 async function loadAllScores() {
   if (!db) return;
   try {
     const snap = await db.collection(COLLECTION).get();
     snap.forEach(doc => {
-      const d = doc.data();
-      const ti = parseInt(doc.id.replace("team_",""));
-      if (isNaN(ti) || ti < 0 || ti >= TEAMS.length) return;
+      const d = doc.data(), ti = parseInt(doc.id.replace("team_",""));
+      if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
+      // Only overwrite cache if Firebase data is newer
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted || false;
+      // Refresh cache with latest server data
+      saveToCache(ti);
     });
-    renderTeamSelect();
-    renderScoreCard();
-    renderDashboard();
   } catch(e) {
     document.getElementById("errorBanner").classList.add("show");
   }
 }
 
 async function saveTeamScores(ti) {
-  if (!db) return;
+  // Always save to cache immediately
+  saveToCache(ti);
   setSaving(true);
+  if (!db || !isOnline) { setSaving(false, true); return; }
   try {
-    await db.collection(COLLECTION).doc(teamDocId(ti)).set({
-      teamId:    ti,
-      teamName:  TEAMS[ti].name,
-      scores:    state.scores[ti],
-      submitted: state.submitted[ti],
+    await db.collection(COLLECTION).doc("team_"+ti).set({
+      teamId: ti, teamName: TEAMS[ti].name,
+      scores: state.scores[ti], submitted: state.submitted[ti],
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    clearCache(ti);
   } catch(e) {
-    showToast("Save failed — check connection");
+    showToast("Saved locally — will sync when online");
   }
   setSaving(false);
 }
 
-function setSaving(v) {
-  state.saving = v;
+function setSaving(v, offline=false) {
   const el = document.getElementById("savingIndicator");
-  if (el) el.textContent = v ? "Saving…" : "Saved";
-  if (!v && el) setTimeout(() => { if(el) el.textContent = ""; }, 1500);
+  if (!el) return;
+  if (v) { el.textContent = "Saving…"; return; }
+  el.textContent = offline ? "Saved locally" : "Saved";
+  setTimeout(() => { if(el) el.textContent = ""; }, 1800);
 }
 
-// ─── Real-time listener ───────────────────────────────────────────────────────
 function startLiveListener() {
   if (!db) return;
-  db.collection(COLLECTION).onSnapshot(snap => {
-    snap.docChanges().forEach(change => {
-      const d = change.doc.data();
-      const ti = parseInt(change.doc.id.replace("team_",""));
-      if (isNaN(ti) || ti < 0 || ti >= TEAMS.length) return;
+  if (liveUnsub) liveUnsub();
+  liveUnsub = db.collection(COLLECTION).onSnapshot(snap => {
+    snap.docChanges().forEach(ch => {
+      const d = ch.doc.data(), ti = parseInt(ch.doc.id.replace("team_",""));
+      if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted || false;
+      saveToCache(ti);
     });
-    renderTeamSelect();
-    if (state.selected !== null) renderScoreCard();
+    renderTabs();
+    if (currentTeam !== null) renderScoreCard();
     if (document.getElementById("dashboard").classList.contains("active")) renderDashboard();
-    const now = new Date();
     const el = document.getElementById("lastUpdate");
-    if (el) el.textContent = "Updated " + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }, err => {
-    document.getElementById("errorBanner").classList.add("show");
+    if (el) el.textContent = "Updated " + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }, () => {
+    isOnline = false; updateSyncBadge();
   });
 }
 
-// ─── Utility ──────────────────────────────────────────────────────────────────
-function vpStr(vp){ return vp === 0 ? "E" : (vp > 0 ? "+" : "") + vp; }
-function toVsPar(s, p){
-  const d = s - p;
-  if (d <= -2) return {label:"Eagle",  cls:"diff-eagle"};
-  if (d === -1) return {label:"Birdie", cls:"diff-birdie"};
-  if (d ===  0) return {label:"Par",    cls:"diff-par"};
-  if (d ===  1) return {label:"Bogey",  cls:"diff-bogey"};
-  return {label: "+" + d,              cls:"diff-double"};
+// ─── Picker ───────────────────────────────────────────────────────────────────
+function openPicker(ti, hi) {
+  pTeam=ti; pHole=hi;
+  const par=PARS[hi], cur=state.scores[ti][hi]??par;
+  document.getElementById("pickerTitle").textContent = "Hole "+(hi+1);
+  document.getElementById("pickerSub").textContent   = "Par "+par;
+  buildDrum(par, cur);
+  document.getElementById("pickerOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
 }
 
-// ─── Render: team selector ────────────────────────────────────────────────────
-function renderTeamSelect() {
-  document.getElementById("teamSelect").innerHTML = TEAMS.map((t,i) => `
-    <button class="team-btn${state.selected===i?" selected":""}${state.submitted[i]?" done":""}"
-      style="${state.selected===i?`background:${t.color};color:#f5f0e8;border-color:${t.color}`:""}"
-      onclick="selectTeam(${i})">
-      ${t.name}${t.handicap?` <small style="opacity:0.8">(+${t.handicap})</small>`:""}${state.submitted[i]?" ✓":""}
-    </button>`).join("");
+function buildDrum(par, selected) {
+  const drum = document.getElementById("drumInner");
+  drum.innerHTML = "";
+  for (let k=0;k<PAD;k++) drum.appendChild(makePad());
+  for (let v=SMIN;v<=SMAX;v++) {
+    const el=document.createElement("div");
+    el.className="picker-item"; el.textContent=v; el.dataset.v=v;
+    drum.appendChild(el);
+  }
+  for (let k=0;k<PAD;k++) drum.appendChild(makePad());
+  drum.scrollTop = (selected-SMIN)*ITEM_H;
+  refreshDrum(drum,par);
+  drum.addEventListener("scroll", () => {
+    refreshDrum(drum,par);
+    clearTimeout(pScrollTimer);
+    pScrollTimer = setTimeout(()=>snapDrum(drum,par), 90);
+  }, {passive:true});
 }
 
-// ─── Render: score card ───────────────────────────────────────────────────────
-function renderScoreCard() {
-  const el = document.getElementById("scoreCard");
-  const ti = state.selected;
-  if (ti === null) { el.innerHTML = `<div class="no-team">Select a team above to enter scores</div>`; return; }
+function makePad() {
+  const e=document.createElement("div"); e.className="picker-item"; e.style.visibility="hidden"; return e;
+}
+function snapDrum(drum,par) {
+  const idx=Math.round(drum.scrollTop/ITEM_H);
+  drum.scrollTo({top:idx*ITEM_H,behavior:"smooth"});
+  refreshDrum(drum,par);
+}
+function refreshDrum(drum,par) {
+  const idx=Math.round(drum.scrollTop/ITEM_H);
+  drum.querySelectorAll(".picker-item[data-v]").forEach((el,i)=>el.classList.toggle("active",i===idx));
+  const val=SMIN+idx;
+  if (val>=SMIN&&val<=SMAX) {
+    const d=val-par;
+    const label=d<=-2?"Eagle":d===-1?"Birdie":d===0?"Par":d===1?"Bogey":d===2?"Double bogey":"+"+(d)+" over par";
+    document.getElementById("pickerFooter").textContent = val+" — "+label;
+  }
+}
+function overlayClick(e) { if(e.target===document.getElementById("pickerOverlay")) closePicker(); }
+function closePicker() {
+  if (pTeam!==null&&pHole!==null) {
+    const drum=document.getElementById("drumInner");
+    const idx=Math.round(drum.scrollTop/ITEM_H);
+    const val=Math.max(SMIN,Math.min(SMAX,SMIN+idx));
+    commitScore(pTeam,pHole,val);
+  }
+  document.getElementById("pickerOverlay").classList.remove("open");
+  document.body.style.overflow="";
+  pTeam=null; pHole=null;
+}
+function commitScore(ti,hi,val) {
+  state.scores[ti][hi]=val;
+  renderTabs(); renderScoreCard();
+  clearTimeout(window._st);
+  window._st=setTimeout(()=>saveTeamScores(ti),800);
+}
 
-  const t    = TEAMS[ti];
-  const sc   = state.scores[ti];
-  const done = state.submitted[ti];
-  const played     = sc.filter(s => s !== null);
-  const totRaw     = played.reduce((a,b) => a+b, 0);
-  const parPlayed  = PARS.filter((_,i) => sc[i] !== null).reduce((a,b) => a+b, 0);
-  const netVp      = (totRaw - parPlayed) + t.handicap;
-  const vpColor    = netVp < 0 ? "#0C447C" : netVp > 0 ? "#791F1F" : "#1a4a1a";
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function vpStr(vp){return vp===0?"E":(vp>0?"+":"")+vp;}
+function toVsPar(s,p){
+  const d=s-p;
+  if(d<=-2)return{label:"Eagle",cls:"diff-eagle"};
+  if(d===-1)return{label:"Birdie",cls:"diff-birdie"};
+  if(d===0)return{label:"Par",cls:"diff-par"};
+  if(d===1)return{label:"Bogey",cls:"diff-bogey"};
+  return{label:"+"+d,cls:"diff-double"};
+}
+function leaderboardLocked(){
+  return currentTeam!==null&&state.scores[currentTeam].filter(s=>s!==null).length>=LEADERBOARD_LOCK_HOLE;
+}
+function showToast(msg){
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
 
-  function holeRows(holes) {
-    return holes.map(i => {
-      const s    = sc[i];
-      const diff = s !== null ? toVsPar(s, PARS[i]) : null;
-      const scoreCell = done
-        ? (s !== null ? `<span style="font-size:17px;color:${t.color};font-family:'Playfair Display',serif">${s}</span>` : `<span class="par-lbl">—</span>`)
-        : `<input class="score-input" type="number" min="1" max="15" value="${s??""}" placeholder="—"
-             oninput="updateScore(${ti},${i},this.value)" ${done?"disabled":""}>`;
-      return `<tr>
-        <td><span class="hole-lbl">${i+1}</span></td>
-        <td><span class="par-lbl">${PARS[i]}</span></td>
-        <td>${scoreCell}</td>
-        <td>${diff ? `<span class="${diff.cls}">${diff.label}</span>` : `<span class="par-lbl">—</span>`}</td>
-      </tr>`;
-    }).join("");
+// ─── Render ───────────────────────────────────────────────────────────────────
+function renderTabs(){
+  const locked=leaderboardLocked();
+  document.querySelector(".tabs").innerHTML=`
+    <button class="tab active" id="tab-entry" onclick="switchTab('entry')">Score Entry</button>
+    ${locked?"":` <button class="tab" id="tab-dashboard" onclick="switchTab('dashboard')">Live Leaderboard</button>`}`;
+  if (locked&&document.getElementById("dashboard").classList.contains("active")) switchTab("entry");
+}
+function switchTab(tab){
+  if(tab==="dashboard"&&leaderboardLocked())return;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  const a=document.getElementById("tab-"+tab);if(a)a.classList.add("active");
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+  if(tab==="dashboard")renderDashboard();
+}
+
+function renderScoreCard(){
+  const el=document.getElementById("scoreCard");
+  const ti=currentTeam;
+  if(ti===null){el.innerHTML="";return;}
+  const t=TEAMS[ti],sc=state.scores[ti],done=state.submitted[ti];
+  const played=sc.filter(s=>s!==null);
+  const totRaw=played.reduce((a,b)=>a+b,0);
+  const parPlayed=PARS.filter((_,i)=>sc[i]!==null).reduce((a,b)=>a+b,0);
+  const netVp=(totRaw-parPlayed)+t.handicap;
+  const vpColor=netVp<0?"#0C447C":netVp>0?"#791F1F":"#1a4a1a";
+  const locked=leaderboardLocked();
+
+  function holeItem(i){
+    const s=sc[i],par=PARS[i],diff=s!==null?toVsPar(s,par):null;
+    if(done){
+      return`<div class="hole-row">
+        <div class="hole-num">${i+1}</div>
+        <div class="hole-par">Par<br>${par}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:${t.color};text-align:center">${s??'—'}</div>
+        <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
+      </div>`;
+    }
+    const label=s!==null?s:`<span style="font-size:13px;font-family:'EB Garamond',serif;color:#aaa">tap</span>`;
+    return`<div class="hole-row">
+      <div class="hole-num">${i+1}</div>
+      <div class="hole-par">Par<br>${par}</div>
+      <button class="score-btn${s!==null?"":" no-score"}" onclick="openPicker(${ti},${i})"
+        style="${s!==null?"border-color:"+t.color+";color:"+t.color:""}">${label}</button>
+      <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
+    </div>`;
   }
 
-  const front = Array.from({length:9}, (_,i) => i);
-  const back  = Array.from({length:9}, (_,i) => i+9);
-
-  el.innerHTML = `
-    <div class="card">
-      <div class="card-title">
-        <div style="width:34px;height:34px;border-radius:50%;background:${t.light};display:flex;align-items:center;justify-content:center;
-          font-family:'Playfair Display',serif;font-size:13px;color:${t.color};flex-shrink:0">
-          ${t.name.replace("'","").slice(0,2).toUpperCase()}</div>
-        ${t.name}
-        ${t.handicap ? `<span class="hcap-badge">+${t.handicap} handicap</span>` : ""}
+  el.innerHTML=`<div class="card">
+    <div class="card-title">
+      <div style="width:32px;height:32px;border-radius:50%;background:${t.light};display:flex;align-items:center;justify-content:center;
+        font-family:'Playfair Display',serif;font-size:12px;color:${t.color};flex-shrink:0">${t.name.replace(/'/g,"").slice(0,2).toUpperCase()}</div>
+      ${t.name}${t.handicap?` <span class="hcap-badge">+${t.handicap} handicap</span>`:""}
+    </div>
+    ${locked?`<div class="lock-notice">The leaderboard is hidden from hole 15 onwards — results revealed at the 19th hole.</div>`:""}
+    <div class="nine-lbl">Front nine</div>
+    <div class="hole-list">${Array.from({length:9},(_,i)=>holeItem(i)).join("")}</div>
+    <div class="nine-lbl" style="margin-top:6px">Back nine</div>
+    <div class="hole-list">${Array.from({length:9},(_,i)=>holeItem(i+9)).join("")}</div>
+    <div class="submit-area">
+      <div>
+        <div class="total-lbl">Total${t.handicap?" (net)":""}</div>
+        <div class="total-num">${totRaw||"—"}</div>
+        ${totRaw?`<div class="total-vp" style="color:${vpColor}">${vpStr(netVp)} vs par</div>`:""}
+        <div class="saving-ind" id="savingIndicator"></div>
       </div>
-
-      <div class="sec-lbl">Front nine</div>
-      <table class="score-table" style="margin-bottom:1rem">
-        <thead><tr><th>Hole</th><th>Par</th><th>Score</th><th>Result</th></tr></thead>
-        <tbody>${holeRows(front)}</tbody>
-      </table>
-
-      <div class="sec-lbl">Back nine</div>
-      <table class="score-table">
-        <thead><tr><th>Hole</th><th>Par</th><th>Score</th><th>Result</th></tr></thead>
-        <tbody>${holeRows(back)}</tbody>
-      </table>
-
-      <div class="submit-area">
-        <div>
-          <div class="total-lbl">Total${t.handicap ? " (net)" : ""}</div>
-          <div class="total-num">${totRaw || "—"}</div>
-          ${totRaw ? `<div class="total-vp" style="color:${vpColor}">${vpStr(netVp)} vs par</div>` : ""}
-          <div class="saving-indicator" id="savingIndicator"></div>
-        </div>
-        ${done
-          ? `<span class="submitted-badge">✓ Card submitted</span>`
-          : `<button class="submit-btn" onclick="submitScores(${ti})">Submit card</button>`
-        }
-      </div>
-    </div>`;
+      ${done?`<span class="submitted-badge">✓ Card submitted</span>`:`<button class="submit-btn" onclick="submitScores(${ti})">Submit card</button>`}
+    </div>
+  </div>`;
 }
 
-// ─── Render: dashboard ────────────────────────────────────────────────────────
-function renderDashboard() {
-  const rows = TEAMS.map((t, ti) => {
-    const sc      = state.scores[ti];
-    const played  = sc.filter(s => s !== null);
-    const totRaw  = played.reduce((a,b) => a+b, 0);
-    const parP    = PARS.filter((_,i) => sc[i] !== null).reduce((a,b) => a+b, 0);
-    return {...t, holes: played.length, total: totRaw, vsPar: played.length ? (totRaw - parP) + t.handicap : null};
-  }).sort((a,b) => {
-    if (a.holes === 0 && b.holes === 0) return 0;
-    if (a.holes === 0) return 1;
-    if (b.holes === 0) return -1;
-    return a.vsPar - b.vsPar;
+function renderDashboard(){
+  const rows=TEAMS.map((t,ti)=>{
+    const sc=state.scores[ti],pl=sc.filter(s=>s!==null);
+    const tot=pl.reduce((a,b)=>a+b,0);
+    const parP=PARS.filter((_,i)=>sc[i]!==null).reduce((a,b)=>a+b,0);
+    return{...t,holes:pl.length,total:tot,vsPar:pl.length?(tot-parP)+t.handicap:null};
+  }).sort((a,b)=>{
+    if(!a.holes&&!b.holes)return 0;
+    if(!a.holes)return 1;if(!b.holes)return -1;
+    return a.vsPar-b.vsPar;
   });
-
-  const leader       = rows[0];
-  const totalHoles   = rows.reduce((a,b) => a + b.holes, 0);
-  const allDiffs     = TEAMS.flatMap((t,ti) => state.scores[ti].map((s,i) => s !== null ? s - PARS[i] : null).filter(x => x !== null));
-  const eagles       = allDiffs.filter(d => d <= -2).length;
-  const birdies      = allDiffs.filter(d => d === -1).length;
-
-  document.getElementById("statCards").innerHTML = `
-    <div class="stat-card">
-      <div class="stat-lbl">Leading</div>
-      <div class="stat-val" style="font-size:15px;color:${leader.color}">${leader.holes ? leader.name : "TBD"}</div>
-      <div class="stat-sub">${leader.holes && leader.vsPar !== null ? vpStr(leader.vsPar) + " vs par" : "No scores yet"}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-lbl">Holes played</div>
-      <div class="stat-val">${totalHoles}</div>
-      <div class="stat-sub">across all teams</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-lbl">Eagles · Birdies</div>
-      <div class="stat-val">${eagles} · ${birdies}</div>
-      <div class="stat-sub">all teams</div>
-    </div>`;
-
-  const medals = ["🥇","🥈","🥉","4th","5th"];
-  document.getElementById("leaderboard").innerHTML = rows.map((t, pos) => {
-    const vp      = t.vsPar;
-    const sc      = vp === null ? "—" : vpStr(vp);
-    const scColor = vp === null ? "#8a9a8a" : vp < 0 ? "#0C447C" : vp > 0 ? "#791F1F" : "#1a4a1a";
-    return `
-      <div class="lb-row${pos === 0 ? " leader" : ""}">
-        <div class="lb-pos">${medals[pos]}</div>
-        <div class="lb-name">
-          <div class="lb-dot" style="background:${t.color}"></div>
-          ${t.name}${t.handicap ? ` <span style="font-size:11px;color:#8a9a8a">(+${t.handicap})</span>` : ""}
-        </div>
-        <div class="lb-holes">${t.holes}/18</div>
-        <div class="lb-score" style="color:${scColor}">${sc}</div>
-      </div>
-      ${pos === 0 ? `<hr class="lb-divider">` : ""}`;
+  const leader=rows[0];
+  const allD=TEAMS.flatMap((t,ti)=>state.scores[ti].map((s,i)=>s!==null?s-PARS[i]:null).filter(x=>x!==null));
+  const totH=rows.reduce((a,b)=>a+b.holes,0);
+  document.getElementById("statCards").innerHTML=`
+    <div class="stat-card"><div class="stat-lbl">Leading</div>
+      <div class="stat-val" style="font-size:13px;color:${leader.color}">${leader.holes?leader.name:"TBD"}</div>
+      <div class="stat-sub">${leader.holes&&leader.vsPar!==null?vpStr(leader.vsPar)+" vs par":"No scores yet"}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Holes played</div>
+      <div class="stat-val">${totH}</div><div class="stat-sub">all teams</div></div>
+    <div class="stat-card"><div class="stat-lbl">Eagles · Birdies</div>
+      <div class="stat-val">${allD.filter(d=>d<=-2).length} · ${allD.filter(d=>d===-1).length}</div><div class="stat-sub">all teams</div></div>`;
+  const medals=["🥇","🥈","🥉","4th","5th"];
+  document.getElementById("leaderboard").innerHTML=rows.map((t,pos)=>{
+    const vp=t.vsPar,sc=vp===null?"—":vpStr(vp);
+    const scColor=vp===null?"#8a9a8a":vp<0?"#0C447C":vp>0?"#791F1F":"#1a4a1a";
+    return`<div class="lb-row${pos===0?" leader":""}">
+      <div class="lb-pos">${medals[pos]}</div>
+      <div class="lb-name"><div class="lb-dot" style="background:${t.color}"></div>${t.name}</div>
+      <div class="lb-holes">${t.holes}/18</div>
+      <div class="lb-score" style="color:${scColor}">${sc}</div>
+    </div>${pos===0?`<hr class="lb-div">`:""}`;
   }).join("");
-
-  const holeStatus = Array.from({length: HOLES}, (_, hi) => {
-    const vals = TEAMS.map((_,ti) => state.scores[ti][hi]).filter(s => s !== null);
-    if (!vals.length) return "empty";
-    const avg = vals.reduce((a,b) => a+b, 0) / vals.length - PARS[hi];
-    return avg < -0.5 ? "under" : avg > 0.5 ? "over" : "par";
+  const hs=Array.from({length:HOLES},(_,hi)=>{
+    const vals=TEAMS.map((_,ti)=>state.scores[ti][hi]).filter(s=>s!==null);
+    if(!vals.length)return"empty";
+    const avg=vals.reduce((a,b)=>a+b,0)/vals.length-PARS[hi];
+    return avg<-0.5?"under":avg>0.5?"over":"par";
   });
-
-  document.getElementById("holeProgress").innerHTML = holeStatus.map((s, i) => {
-    const bg = s==="under"?"#d8f0e8":s==="over"?"#fae0e0":s==="par"?"#daefd8":"transparent";
-    const tc = s==="under"?"#085041":s==="over"?"#791F1F":s==="par"?"#27500A":"#8a9a8a";
-    return `<div class="hp-dot" style="background:${bg};color:${tc};border-color:${s==="empty"?"#c8b88a":bg}">${i+1}</div>`;
+  document.getElementById("holeProgress").innerHTML=hs.map((s,i)=>{
+    const bg=s==="under"?"#d8f0e8":s==="over"?"#fae0e0":s==="par"?"#daefd8":"transparent";
+    const tc=s==="under"?"#085041":s==="over"?"#791F1F":s==="par"?"#27500A":"#8a9a8a";
+    return`<div class="hp-dot" style="background:${bg};color:${tc};border-color:${s==="empty"?"#c8b88a":bg}">${i+1}</div>`;
   }).join("");
 }
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", ["entry","dashboard"][i] === tab));
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-  if (tab === "dashboard") renderDashboard();
-}
-
-function selectTeam(i) {
-  state.selected = i;
-  renderTeamSelect();
-  renderScoreCard();
-}
-
-let saveTimer = null;
-function updateScore(ti, hi, val) {
-  const n = parseInt(val);
-  state.scores[ti][hi] = (val === "" || isNaN(n) || n < 1) ? null : Math.min(n, 15);
-  renderScoreCard();
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => saveTeamScores(ti), 800);
-}
-
-async function submitScores(ti) {
-  state.submitted[ti] = true;
-  renderTeamSelect();
+async function submitScores(ti){
+  state.submitted[ti]=true;
   renderScoreCard();
   await saveTeamScores(ti);
-  showToast(TEAMS[ti].name + " — card submitted");
+  showToast(TEAMS[ti].name+" — card submitted");
 }
 
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2800);
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+if (restoreSession()) {
+  launchApp();
+} else {
+  document.getElementById("loginScreen").style.display = "flex";
+  if (!navigator.onLine) {
+    document.getElementById("loginOffline").textContent = "You appear to be offline. Login still works — scores will sync when reconnected.";
+  }
 }
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
-renderTeamSelect();
-renderScoreCard();
-renderDashboard();
-loadAllScores().then(() => startLiveListener());
 </script>
 </body>
 </html>
