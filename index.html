@@ -19,7 +19,7 @@
   // 🔧 LOGO: Replace with your WordPress media library URL
   // e.g. "https://yoursite.com/wp-content/uploads/2026/05/mfi-logo.png"
   // Leave as "" to show the text title instead
-  const LOGO_URL = "";
+  const LOGO_URL = "https://milesthomas117-evnaz.wordpress.com/wp-content/uploads/2026/05/add-a-little-bit-of-body-text-933-x-393-px.png";
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
@@ -31,12 +31,9 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 .wrap{max-width:640px;margin:0 auto;padding:0 0 5rem}
 
 /* ── Header ── */
-.hdr{text-align:center;padding:1.25rem 1rem 1rem;border-bottom:2px solid #1a4a1a}
-.hdr-logo{max-width:220px;height:auto;display:block;margin:0 auto 0.5rem}
-.hdr-the{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:0.28em;color:#5a7a5a;text-transform:uppercase;margin-bottom:4px}
-.hdr-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#1a4a1a;letter-spacing:0.03em;line-height:1.1}
-.hdr-italic{font-family:'Playfair Display',serif;font-size:20px;font-style:italic;color:#1a4a1a}
-.hdr-date{font-size:11px;letter-spacing:0.18em;color:#1a4a1a;text-transform:uppercase;margin-top:6px}
+.hdr{text-align:center;padding:0.6rem 1rem;border-bottom:2px solid #1a4a1a;background:#fffdf7}
+.hdr-logo{max-width:200px;height:auto;display:block;margin:0 auto 0.4rem}
+.hdr-date{font-size:11px;letter-spacing:0.18em;color:#1a4a1a;text-transform:uppercase}
 .hdr-venue{font-size:11px;letter-spacing:0.1em;color:#5a7a5a;text-transform:uppercase;margin-top:2px}
 
 /* ── Login screen ── */
@@ -73,10 +70,11 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 .card{background:#fffdf7;border:1px solid #c8b88a;border-radius:4px;padding:1rem;margin-bottom:0.875rem}
 .card-title{font-family:'Playfair Display',serif;font-size:17px;color:#1a4a1a;margin-bottom:0.875rem;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .hole-list{display:flex;flex-direction:column}
-.hole-row{display:grid;grid-template-columns:2.2rem 3rem 1fr auto;align-items:center;gap:10px;padding:9px 2px;border-bottom:0.5px solid #e8dfc8}
+.hole-row{display:grid;grid-template-columns:1.8rem 2.6rem 3rem 1fr auto;align-items:center;gap:8px;padding:9px 2px;border-bottom:0.5px solid #e8dfc8}
 .hole-row:last-child{border-bottom:none}
 .hole-num{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#1a4a1a;text-align:center}
 .hole-par{font-size:12px;color:#8a9a8a;text-align:center;line-height:1.3}
+.hole-yards{font-size:11px;color:#b8a060;text-align:center;line-height:1.3;font-family:'EB Garamond',serif;letter-spacing:0.01em}
 .score-btn{width:56px;height:44px;border:1px solid #c8b88a;border-radius:4px;background:#fff;font-family:'Playfair Display',serif;font-size:20px;color:#1a4a1a;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;-webkit-appearance:none}
 .score-btn.no-score{font-size:13px;font-family:'EB Garamond',serif;color:#aaa;letter-spacing:0.04em}
 .diff-pill{font-size:12px;padding:4px 8px;border-radius:3px;white-space:nowrap;min-width:56px;text-align:center;font-family:'EB Garamond',serif}
@@ -94,6 +92,8 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 .submit-btn{padding:13px 22px;border-radius:4px;background:#1a4a1a;color:#f5f0e8;border:none;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:0.05em;cursor:pointer;-webkit-appearance:none}
 .submitted-badge{font-family:'EB Garamond',serif;font-size:15px;color:#085041;font-style:italic}
 .saving-ind{font-size:12px;color:#8a9a8a;font-family:'EB Garamond',serif;font-style:italic;min-height:16px;margin-top:4px}
+.reset-btn{padding:9px 14px;border-radius:4px;background:transparent;color:#791F1F;border:1px solid #791F1F;font-family:'EB Garamond',serif;font-size:13px;letter-spacing:0.04em;cursor:pointer;-webkit-appearance:none;opacity:0.75}
+.reset-btn:active{background:#fae0e0}
 .hcap-badge{font-size:11px;background:#f5e8d0;color:#633806;padding:2px 8px;border-radius:3px;font-family:'EB Garamond',serif}
 .lock-notice{background:#f5e8d0;border:1px solid #d5c8a8;border-radius:3px;padding:10px 12px;margin-bottom:0.875rem;font-family:'EB Garamond',serif;font-size:14px;color:#633806;font-style:italic}
 
@@ -130,9 +130,9 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 .picker-drum{position:relative;height:210px;overflow:hidden;margin:0 20px}
 .picker-drum-inner{overflow-y:scroll;height:210px;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .picker-drum-inner::-webkit-scrollbar{display:none}
-.picker-item{height:54px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-family:'Playfair Display',serif;font-size:24px;color:#bbb;cursor:pointer;user-select:none;transition:color 0.08s,font-size 0.08s}
-.picker-item.active{color:#1a4a1a;font-size:34px}
-.picker-highlight{position:absolute;top:50%;left:0;right:0;height:54px;transform:translateY(-50%);border-top:1px solid #c8b88a;border-bottom:1px solid #c8b88a;pointer-events:none;border-radius:2px;background:rgba(200,184,138,0.1)}
+.picker-item{height:54px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-family:'Playfair Display',serif;font-size:22px;color:#ccc;cursor:pointer;user-select:none}
+.picker-item.active{color:#1a4a1a;font-size:38px;font-weight:700}
+.picker-highlight{display:none}
 .picker-footer{text-align:center;padding:8px 0 4px;font-family:'EB Garamond',serif;font-size:15px;min-height:30px;color:#3a5a3a}
 
 .error-banner{background:#fae0e0;border:1px solid #e0b0b0;border-radius:3px;padding:12px 14px;margin:0.875rem 0.875rem 0;font-family:'EB Garamond',serif;font-size:14px;color:#791F1F;display:none}
@@ -240,6 +240,7 @@ const TEAMS = [
   {id:4, name:"Theo's Team",   username:"theo",    password:"Theo",    color:"#633806", light:"#FAEEDA", handicap:0}
 ];
 const PARS  = [4,4,3,4,4,3,5,4,4,4,5,3,4,4,3,5,3,4];
+const YARDS = [422,362,143,393,342,162,436,255,354,398,512,125,379,411,118,470,127,276];
 const HOLES = 18, LEADERBOARD_LOCK_HOLE = 15, COLLECTION = "mfi2026";
 const SMIN = 1, SMAX = 12, ITEM_H = 54, PAD = 2;
 const CACHE_KEY = ti => "mfi2026_team_" + ti;
@@ -258,15 +259,10 @@ let pTeam = null, pHole = null, pScrollTimer = null;
 document.getElementById("mfi-date").textContent  = EVENT_DATE;
 document.getElementById("mfi-venue").textContent = EVENT_VENUE;
 
-// Render header (logo or text)
+// Render header - only show logo if LOGO_URL is set
 const hdrContent = document.getElementById("hdr-content");
 if (LOGO_URL) {
   hdrContent.innerHTML = `<img class="hdr-logo" src="${LOGO_URL}" alt="The Miles Fraser Invitational">`;
-} else {
-  hdrContent.innerHTML = `
-    <div class="hdr-the">The</div>
-    <div class="hdr-title">Miles Fraser</div>
-    <div class="hdr-italic">Invitational</div>`;
 }
 
 // Firebase
@@ -475,7 +471,9 @@ function startLiveListener() {
 // ─── Picker ───────────────────────────────────────────────────────────────────
 function openPicker(ti, hi) {
   pTeam=ti; pHole=hi;
-  const par=PARS[hi], cur=state.scores[ti][hi]??par;
+  const par=PARS[hi];
+  // If no score entered yet, default to par. If already scored, show that score.
+  const cur = state.scores[ti][hi] !== null ? state.scores[ti][hi] : par;
   document.getElementById("pickerTitle").textContent = "Hole "+(hi+1);
   document.getElementById("pickerSub").textContent   = "Par "+par;
   buildDrum(par, cur);
@@ -493,43 +491,53 @@ function buildDrum(par, selected) {
     drum.appendChild(el);
   }
   for (let k=0;k<PAD;k++) drum.appendChild(makePad());
-  drum.scrollTop = (selected-SMIN)*ITEM_H;
-  refreshDrum(drum,par);
+  // Each item is ITEM_H px tall. The highlight window is centred in the drum.
+  // scrollTop = N * ITEM_H places item N at the top of the drum.
+  // The highlight sits at drum centre = PAD * ITEM_H from the top of the scroll content.
+  // So to centre item at index (selected-SMIN), set scrollTop = (selected-SMIN)*ITEM_H.
+  // We then read back the centred index with getSelectedIdx which uses the same formula.
+  drum.scrollTop = (selected - SMIN) * ITEM_H;
+  drum.getBoundingClientRect(); // flush layout
+  refreshDrum(drum, par);
   drum.addEventListener("scroll", () => {
-    refreshDrum(drum,par);
+    refreshDrum(drum, par);
     clearTimeout(pScrollTimer);
-    pScrollTimer = setTimeout(()=>snapDrum(drum,par), 90);
+    pScrollTimer = setTimeout(() => snapDrum(drum, par), 100);
   }, {passive:true});
 }
 
 function makePad() {
   const e=document.createElement("div"); e.className="picker-item"; e.style.visibility="hidden"; return e;
 }
-function snapDrum(drum,par) {
-  const idx=Math.round(drum.scrollTop/ITEM_H);
-  drum.scrollTo({top:idx*ITEM_H,behavior:"smooth"});
-  refreshDrum(drum,par);
+function snapDrum(drum, par) {
+  const idx = Math.round(drum.scrollTop / ITEM_H);
+  const clamped = Math.max(0, Math.min(SMAX - SMIN, idx));
+  drum.scrollTo({top: clamped * ITEM_H, behavior:"smooth"});
+  refreshDrum(drum, par);
 }
-function refreshDrum(drum,par) {
-  const idx=Math.round(drum.scrollTop/ITEM_H);
-  drum.querySelectorAll(".picker-item[data-v]").forEach((el,i)=>el.classList.toggle("active",i===idx));
-  const val=SMIN+idx;
-  if (val>=SMIN&&val<=SMAX) {
-    const d=val-par;
-    const label=d<=-2?"Eagle":d===-1?"Birdie":d===0?"Par":d===1?"Bogey":d===2?"Double bogey":"+"+(d)+" over par";
-    document.getElementById("pickerFooter").textContent = val+" — "+label;
+function getSelectedIdx(drum) {
+  return Math.round(drum.scrollTop / ITEM_H);
+}
+function refreshDrum(drum, par) {
+  const idx = getSelectedIdx(drum);
+  drum.querySelectorAll(".picker-item[data-v]").forEach((el,i) => el.classList.toggle("active", i === idx));
+  const val = SMIN + idx;
+  if (val >= SMIN && val <= SMAX) {
+    const d = val - par;
+    const label = d<=-2?"Eagle":d===-1?"Birdie":d===0?"Par":d===1?"Bogey":d===2?"Double bogey":"+"+d+" over par";
+    document.getElementById("pickerFooter").textContent = val + " — " + label;
   }
 }
 function overlayClick(e) { if(e.target===document.getElementById("pickerOverlay")) closePicker(); }
 function closePicker() {
-  if (pTeam!==null&&pHole!==null) {
-    const drum=document.getElementById("drumInner");
-    const idx=Math.round(drum.scrollTop/ITEM_H);
-    const val=Math.max(SMIN,Math.min(SMAX,SMIN+idx));
-    commitScore(pTeam,pHole,val);
+  if (pTeam!==null && pHole!==null) {
+    const drum = document.getElementById("drumInner");
+    const idx = getSelectedIdx(drum);
+    const val = Math.max(SMIN, Math.min(SMAX, SMIN + idx));
+    commitScore(pTeam, pHole, val);
   }
   document.getElementById("pickerOverlay").classList.remove("open");
-  document.body.style.overflow="";
+  document.body.style.overflow = "";
   pTeam=null; pHole=null;
 }
 function commitScore(ti,hi,val) {
@@ -550,7 +558,8 @@ function toVsPar(s,p){
   return{label:"+"+d,cls:"diff-double"};
 }
 function leaderboardLocked(){
-  return currentTeam!==null&&state.scores[currentTeam].filter(s=>s!==null).length>=LEADERBOARD_LOCK_HOLE;
+  // Lock for everyone once ANY team has played 15 or more holes
+  return state.scores.some(sc => sc.filter(s=>s!==null).length >= LEADERBOARD_LOCK_HOLE);
 }
 function showToast(msg){
   const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
@@ -588,10 +597,12 @@ function renderScoreCard(){
 
   function holeItem(i){
     const s=sc[i],par=PARS[i],diff=s!==null?toVsPar(s,par):null;
+    const yards=YARDS[i];
     if(done){
       return`<div class="hole-row">
         <div class="hole-num">${i+1}</div>
         <div class="hole-par">Par<br>${par}</div>
+        <div class="hole-yards">${yards}<br>yds</div>
         <div style="font-family:'Playfair Display',serif;font-size:22px;color:${t.color};text-align:center">${s??'—'}</div>
         <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
       </div>`;
@@ -600,6 +611,7 @@ function renderScoreCard(){
     return`<div class="hole-row">
       <div class="hole-num">${i+1}</div>
       <div class="hole-par">Par<br>${par}</div>
+      <div class="hole-yards">${yards}<br>yds</div>
       <button class="score-btn${s!==null?"":" no-score"}" onclick="openPicker(${ti},${i})"
         style="${s!==null?"border-color:"+t.color+";color:"+t.color:""}">${label}</button>
       <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
@@ -612,7 +624,7 @@ function renderScoreCard(){
         font-family:'Playfair Display',serif;font-size:12px;color:${t.color};flex-shrink:0">${t.name.replace(/'/g,"").slice(0,2).toUpperCase()}</div>
       ${t.name}${t.handicap?` <span class="hcap-badge">+${t.handicap} handicap</span>`:""}
     </div>
-    ${locked?`<div class="lock-notice">The leaderboard is hidden from hole 15 onwards — results revealed at the 19th hole.</div>`:""}
+    ${locked?`<div class="lock-notice">The leaderboard is now hidden — results will be revealed at the 19th hole.</div>`:""}
     <div class="nine-lbl">Front nine</div>
     <div class="hole-list">${Array.from({length:9},(_,i)=>holeItem(i)).join("")}</div>
     <div class="nine-lbl" style="margin-top:6px">Back nine</div>
@@ -624,7 +636,11 @@ function renderScoreCard(){
         ${totRaw?`<div class="total-vp" style="color:${vpColor}">${vpStr(netVp)} vs par</div>`:""}
         <div class="saving-ind" id="savingIndicator"></div>
       </div>
-      ${done?`<span class="submitted-badge">✓ Card submitted</span>`:`<button class="submit-btn" onclick="submitScores(${ti})">Submit card</button>`}
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        ${done?`<span class="submitted-badge">✓ Card submitted</span>`:`
+          <button class="reset-btn" onclick="resetScores(${ti})">Reset scores</button>
+          <button class="submit-btn" onclick="submitScores(${ti})">Submit card</button>`}
+      </div>
     </div>
   </div>`;
 }
@@ -673,6 +689,16 @@ function renderDashboard(){
     const tc=s==="under"?"#085041":s==="over"?"#791F1F":s==="par"?"#27500A":"#8a9a8a";
     return`<div class="hp-dot" style="background:${bg};color:${tc};border-color:${s==="empty"?"#c8b88a":bg}">${i+1}</div>`;
   }).join("");
+}
+
+function resetScores(ti) {
+  if (!confirm("Reset all scores for " + TEAMS[ti].name + "? This cannot be undone.")) return;
+  state.scores[ti] = Array(HOLES).fill(null);
+  state.submitted[ti] = false;
+  renderTabs(); renderScoreCard();
+  clearTimeout(window._st);
+  window._st = setTimeout(() => saveTeamScores(ti), 400);
+  showToast("Scores reset for " + TEAMS[ti].name);
 }
 
 async function submitScores(ti){
