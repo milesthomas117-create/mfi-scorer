@@ -119,6 +119,23 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 .live-dot{width:7px;height:7px;border-radius:50%;background:#085041;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 
+/* ── Drives tab ── */
+.drives-team-block{background:#fffdf7;border:1px solid #c8b88a;border-radius:4px;padding:1rem;margin-bottom:0.875rem}
+.drives-team-title{font-family:'Playfair Display',serif;font-size:16px;color:#1a4a1a;margin-bottom:0.75rem;display:flex;align-items:center;gap:8px}
+.drives-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.drives-player{background:#f5f0e8;border-radius:3px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e0d8c0}
+.drives-player-name{font-family:'EB Garamond',serif;font-size:14px;color:#1a4a1a}
+.drives-player-name.me{font-weight:600;color:#1a4a1a}
+.drives-count{font-family:'Playfair Display',serif;font-size:22px;color:#1a4a1a;min-width:28px;text-align:right}
+.drives-bar{height:4px;background:#e0d8c0;border-radius:2px;margin-top:6px;overflow:hidden}
+.drives-bar-fill{height:100%;background:#1a4a1a;border-radius:2px;transition:width 0.3s}
+.drives-total{font-family:'EB Garamond',serif;font-size:12px;color:#8a9a8a;margin-top:6px;font-style:italic}
+
+/* ── Tee shot button in hole row ── */
+.tee-btn{height:44px;padding:0 10px;border:1px solid #c8b88a;border-radius:4px;background:#fff;font-family:'EB Garamond',serif;font-size:13px;color:#5a7a5a;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;-webkit-appearance:none;min-width:80px;justify-content:center}
+.tee-btn.has-driver{border-color:#1a4a1a;color:#1a4a1a;background:#f0f7ec}
+.tee-btn-label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;display:block;color:#8a9a8a;margin-bottom:1px}
+
 /* ── Picker ── */
 .picker-overlay{position:fixed;inset:0;background:rgba(15,25,15,0.6);z-index:1000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.22s}
 .picker-overlay.open{opacity:1;pointer-events:all}
@@ -204,11 +221,36 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
       <div class="sec-lbl" style="margin-top:1rem">Hole-by-hole</div>
       <div class="card"><div id="holeProgress" class="hole-grid"></div></div>
     </div>
+
+  <div id="drives-tab" class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div class="live-badge"><span class="live-dot"></span>Live drives</div>
+      <div style="font-family:'EB Garamond',serif;font-size:12px;color:#8a9a8a" id="drivesLastUpdate"></div>
+    </div>
+    <div id="drivesContent"></div>
   </div>
 
 </div>
 
-<!-- Picker -->
+<!-- Drive player picker -->
+<div class="picker-overlay" id="drivePickerOverlay" onclick="driveOverlayClick(event)">
+  <div class="picker-sheet" onclick="event.stopPropagation()">
+    <div class="picker-header">
+      <div>
+        <div class="picker-hole-info" id="drivePickerTitle">Who drove?</div>
+        <div class="picker-hole-sub" id="drivePickerSub"></div>
+      </div>
+      <button class="picker-done" onclick="closeDrivePicker(true)">Select</button>
+    </div>
+    <div class="picker-drum">
+      <div class="picker-highlight" style="display:none"></div>
+      <div class="picker-drum-inner" id="driveDrumInner"></div>
+    </div>
+    <div class="picker-footer" id="drivePickerFooter"></div>
+  </div>
+</div>
+
+<!-- Score Picker -->
 <div class="picker-overlay" id="pickerOverlay" onclick="overlayClick(event)">
   <div class="picker-sheet" onclick="event.stopPropagation()">
     <div class="picker-header">
@@ -241,19 +283,35 @@ const TEAMS = [
 ];
 const PARS  = [4,4,3,4,4,3,5,4,4,4,5,3,4,4,3,5,3,4];
 const YARDS = [422,362,143,393,342,162,436,255,354,398,512,125,379,411,118,470,127,276];
+const TEAM_PLAYERS = [
+  ["Alex","Clayds","John","Sarge"],          // John's Team  (alphabetical)
+  ["Aaron","Harry Blight","Miggy","Miles"],  // Miles' Team
+  ["Baylis","Charlie","Frazer","Vinnie"],    // Charlie's Team
+  ["George","Lawrence","Sewell","Turns"],    // Turns' Team
+  ["Ayden","David","Theo","Tom"]             // Theo's Team
+];
+const DRIVES_COLLECTION = "mfi2026_drives";
 const HOLES = 18, LEADERBOARD_LOCK_HOLE = 15, COLLECTION = "mfi2026";
 const SMIN = 1, SMAX = 12, ITEM_H = 54, PAD = 2;
 const CACHE_KEY = ti => "mfi2026_team_" + ti;
 const SESSION_KEY = "mfi2026_session";
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let db = null, isOnline = true, liveUnsub = null;
+let db = null, isOnline = true, liveUnsub = null, drivesUnsub = null;
 let currentTeam = null; // logged-in team index
 let state = {
   scores:    TEAMS.map(() => Array(HOLES).fill(null)),
   submitted: TEAMS.map(() => false)
 };
+// drives[ti][playerName] = count
+let drives = TEAMS.map((t,ti) => {
+  const d = {};
+  TEAM_PLAYERS[ti].forEach(p => d[p] = 0);
+  return d;
+});
 let pTeam = null, pHole = null, pScrollTimer = null;
+// Drive picker state
+let dPickerTeam = null, dPickerHole = null, dPickerScrollTimer = null, dPickerResolve = null;
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.getElementById("mfi-date").textContent  = EVENT_DATE;
@@ -282,9 +340,11 @@ window.addEventListener("offline", () => { isOnline=false; updateSyncBadge(); })
 // ─── Local cache helpers ──────────────────────────────────────────────────────
 function saveToCache(ti) {
   try {
+    getTeeShots(ti);
     localStorage.setItem(CACHE_KEY(ti), JSON.stringify({
       scores:    state.scores[ti],
       submitted: state.submitted[ti],
+      teeShots:  state.teeShots[ti],
       savedAt:   Date.now()
     }));
   } catch(e) {}
@@ -297,6 +357,8 @@ function loadFromCache(ti) {
     const d = JSON.parse(raw);
     state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
     state.submitted[ti] = d.submitted || false;
+    getTeeShots(ti); // ensure initialised
+    state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
     return true;
   } catch(e) { return false; }
 }
@@ -385,18 +447,21 @@ async function launchApp() {
   updateSyncBadge();
 
   // Step 1: Load from cache instantly and render — user sees scorecard immediately
-  for (let ti = 0; ti < TEAMS.length; ti++) loadFromCache(ti);
+  for (let ti = 0; ti < TEAMS.length; ti++) { loadFromCache(ti); loadDrivesFromCache(ti); }
   renderTabs();
   renderScoreCard();
   renderDashboard();
+  renderDrives();
 
-  // Step 2: Sync Firebase in the background — updates will flow in via live listener
-  loadAllScores().then(() => {
+  // Step 2: Sync Firebase in the background
+  Promise.all([loadAllScores(), loadAllDrives()]).then(() => {
     renderTabs();
     renderScoreCard();
     renderDashboard();
+    renderDrives();
   });
   startLiveListener();
+  startDrivesListener();
 }
 
 function updateSyncBadge() {
@@ -414,10 +479,10 @@ async function loadAllScores() {
     snap.forEach(doc => {
       const d = doc.data(), ti = parseInt(doc.id.replace("team_",""));
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
-      // Only overwrite cache if Firebase data is newer
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted || false;
-      // Refresh cache with latest server data
+      getTeeShots(ti);
+      state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
   } catch(e) {
@@ -431,9 +496,11 @@ async function saveTeamScores(ti) {
   setSaving(true);
   if (!db || !isOnline) { setSaving(false, true); return; }
   try {
+    getTeeShots(ti);
     await db.collection(COLLECTION).doc("team_"+ti).set({
       teamId: ti, teamName: TEAMS[ti].name,
       scores: state.scores[ti], submitted: state.submitted[ti],
+      teeShots: state.teeShots[ti],
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     clearCache(ti);
@@ -460,6 +527,8 @@ function startLiveListener() {
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted || false;
+      getTeeShots(ti);
+      state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
     renderTabs();
@@ -570,13 +639,181 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
+// ─── Drive picker ─────────────────────────────────────────────────────────────
+function openDrivePicker(ti, hi) {
+  return new Promise(resolve => {
+    dPickerTeam=ti; dPickerHole=hi; dPickerResolve=resolve;
+    const players = TEAM_PLAYERS[ti]; // already alphabetical
+    const current = state.scores[ti] ? (state.teeShots||[])[hi] || null : null;
+    document.getElementById("drivePickerTitle").textContent = "Hole "+(hi+1)+" — Who drove?";
+    document.getElementById("drivePickerSub").textContent = TEAMS[ti].name;
+    buildDriveDrum(players, current);
+    document.getElementById("drivePickerOverlay").classList.add("open");
+    document.body.style.overflow="hidden";
+  });
+}
+function buildDriveDrum(players, selected) {
+  const drum = document.getElementById("driveDrumInner");
+  drum.innerHTML="";
+  const PAD2=2;
+  for(let k=0;k<PAD2;k++) drum.appendChild(makePad2());
+  players.forEach((p,i)=>{
+    const el=document.createElement("div");
+    el.className="picker-item"; el.textContent=p; el.dataset.p=p;
+    el.style.fontSize="20px";
+    drum.appendChild(el);
+  });
+  for(let k=0;k<PAD2;k++) drum.appendChild(makePad2());
+  const selIdx = selected ? players.indexOf(selected) : 0;
+  drum.scrollTop = Math.max(0,selIdx) * ITEM_H;
+  drum.getBoundingClientRect();
+  refreshDriveDrum(drum, players);
+  drum.addEventListener("scroll",()=>{
+    refreshDriveDrum(drum,players);
+    clearTimeout(dPickerScrollTimer);
+    dPickerScrollTimer=setTimeout(()=>snapDriveDrum(drum,players),100);
+  },{passive:true});
+}
+function makePad2(){const e=document.createElement("div");e.className="picker-item";e.style.visibility="hidden";return e;}
+function snapDriveDrum(drum,players){
+  const idx=Math.round(drum.scrollTop/ITEM_H);
+  const c=Math.max(0,Math.min(players.length-1,idx));
+  drum.scrollTo({top:c*ITEM_H,behavior:"smooth"});
+  refreshDriveDrum(drum,players);
+}
+function getSelectedDriveIdx(drum){return Math.round(drum.scrollTop/ITEM_H);}
+function refreshDriveDrum(drum,players){
+  const idx=getSelectedDriveIdx(drum);
+  drum.querySelectorAll(".picker-item[data-p]").forEach((el,i)=>el.classList.toggle("active",i===idx));
+  if(players[idx]) document.getElementById("drivePickerFooter").textContent="Selected: "+players[idx];
+}
+function driveOverlayClick(e){if(e.target===document.getElementById("drivePickerOverlay"))closeDrivePicker(false);}
+function closeDrivePicker(commit){
+  const drum=document.getElementById("driveDrumInner");
+  let chosen=null;
+  if(commit){
+    const idx=getSelectedDriveIdx(drum);
+    const players=TEAM_PLAYERS[dPickerTeam];
+    chosen=players[Math.max(0,Math.min(players.length-1,idx))];
+  }
+  document.getElementById("drivePickerOverlay").classList.remove("open");
+  document.body.style.overflow="";
+  if(dPickerResolve){ dPickerResolve(chosen); dPickerResolve=null; }
+  dPickerTeam=null; dPickerHole=null;
+}
+
+// ─── Drives Firebase ──────────────────────────────────────────────────────────
+function drivesDocId(ti){ return "team_"+ti; }
+
+function saveDrivesToCache(ti){
+  try{ localStorage.setItem("mfi2026_drives_"+ti, JSON.stringify(drives[ti])); }catch(e){}
+}
+function loadDrivesFromCache(ti){
+  try{
+    const raw=localStorage.getItem("mfi2026_drives_"+ti);
+    if(!raw) return;
+    const d=JSON.parse(raw);
+    TEAM_PLAYERS[ti].forEach(p=>{ drives[ti][p]=d[p]||0; });
+  }catch(e){}
+}
+async function saveDrives(ti){
+  saveDrivesToCache(ti);
+  if(!db||!isOnline) return;
+  try{
+    await db.collection(DRIVES_COLLECTION).doc(drivesDocId(ti)).set({
+      teamId:ti, teamName:TEAMS[ti].name,
+      drives:drives[ti],
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){ showToast("Drive save failed — saved locally"); }
+}
+async function loadAllDrives(){
+  if(!db) return;
+  try{
+    const snap=await db.collection(DRIVES_COLLECTION).get();
+    snap.forEach(doc=>{
+      const d=doc.data(), ti=parseInt(doc.id.replace("team_",""));
+      if(isNaN(ti)||ti<0||ti>=TEAMS.length) return;
+      TEAM_PLAYERS[ti].forEach(p=>{ drives[ti][p]=d.drives?d.drives[p]||0:0; });
+      saveDrivesToCache(ti);
+    });
+  }catch(e){}
+}
+function startDrivesListener(){
+  if(!db) return;
+  if(drivesUnsub) drivesUnsub();
+  drivesUnsub=db.collection(DRIVES_COLLECTION).onSnapshot(snap=>{
+    snap.docChanges().forEach(ch=>{
+      const d=ch.doc.data(), ti=parseInt(ch.doc.id.replace("team_",""));
+      if(isNaN(ti)||ti<0||ti>=TEAMS.length) return;
+      TEAM_PLAYERS[ti].forEach(p=>{ drives[ti][p]=d.drives?d.drives[p]||0:0; });
+      saveDrivesToCache(ti);
+    });
+    if(document.getElementById("drives-tab").classList.contains("active")) renderDrives();
+    const el=document.getElementById("drivesLastUpdate");
+    if(el) el.textContent="Updated "+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  });
+}
+
+// ─── Tee shot recording ───────────────────────────────────────────────────────
+// state.teeShots[ti] = array of player names indexed by hole
+// We store this in the main team doc to keep things together
+function getTeeShots(ti){ return state.teeShots||(state.teeShots=TEAMS.map(()=>Array(HOLES).fill(null))); }
+
+async function recordTeeShot(ti, hi){
+  const player = await openDrivePicker(ti, hi);
+  if(!player) return;
+  const prev = getTeeShots(ti)[hi];
+  getTeeShots(ti)[hi] = player;
+  // Adjust tally
+  if(prev && drives[ti][prev]>0) drives[ti][prev]--;
+  drives[ti][player] = (drives[ti][player]||0)+1;
+  renderScoreCard();
+  await saveDrives(ti);
+  showToast(player+" recorded as driver — Hole "+(hi+1));
+}
+
+// ─── Render: drives tab ───────────────────────────────────────────────────────
+function renderDrives(){
+  const el=document.getElementById("drivesContent");
+  if(!el) return;
+  el.innerHTML=TEAMS.map((t,ti)=>{
+    const players=TEAM_PLAYERS[ti];
+    const total=players.reduce((a,p)=>a+(drives[ti][p]||0),0);
+    const max=Math.max(1,...players.map(p=>drives[ti][p]||0));
+    const rows=players.map(p=>{
+      const cnt=drives[ti][p]||0;
+      const pct=Math.round((cnt/max)*100);
+      const isMe=currentTeam===ti && p===(TEAM_PLAYERS[ti].find(x=>x.toLowerCase()===TEAMS[ti].name.split("'")[0].toLowerCase())||"");
+      return`<div class="drives-player">
+        <div style="flex:1">
+          <div class="drives-player-name${isMe?" me":""}">${p}</div>
+          <div class="drives-bar"><div class="drives-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="drives-count">${cnt}</div>
+      </div>`;
+    }).join("");
+    return`<div class="drives-team-block">
+      <div class="drives-team-title">
+        <div style="width:10px;height:10px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+        ${t.name}
+        <span style="font-family:'EB Garamond',serif;font-size:12px;color:#8a9a8a;font-weight:normal;margin-left:auto">${total} drives recorded</span>
+      </div>
+      <div class="drives-grid">${rows}</div>
+    </div>`;
+  }).join("");
+}
+
 // ─── Render ───────────────────────────────────────────────────────────────────
 function renderTabs(){
   const locked=leaderboardLocked();
+  const cur=document.querySelector(".section.active");
+  const curId=cur?cur.id:"entry";
   document.querySelector(".tabs").innerHTML=`
-    <button class="tab active" id="tab-entry" onclick="switchTab('entry')">Score Entry</button>
-    ${locked?"":` <button class="tab" id="tab-dashboard" onclick="switchTab('dashboard')">Live Leaderboard</button>`}`;
-  if (locked&&document.getElementById("dashboard").classList.contains("active")) switchTab("entry");
+    <button class="tab${curId==="entry"?" active":""}" id="tab-entry" onclick="switchTab('entry')">Scores</button>
+    ${locked?"":` <button class="tab${curId==="dashboard"?" active":""}" id="tab-dashboard" onclick="switchTab('dashboard')">Leaderboard</button>`}
+    <button class="tab${curId==="drives-tab"?" active":""}" id="tab-drives-tab" onclick="switchTab('drives-tab')">Drives</button>`;
+  if(locked&&document.getElementById("dashboard").classList.contains("active")) switchTab("entry");
 }
 function switchTab(tab){
   if(tab==="dashboard"&&leaderboardLocked())return;
@@ -585,6 +822,7 @@ function switchTab(tab){
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
   if(tab==="dashboard")renderDashboard();
+  if(tab==="drives-tab")renderDrives();
 }
 
 function renderScoreCard(){
@@ -612,12 +850,15 @@ function renderScoreCard(){
       </div>`;
     }
     const label=s!==null?s:`<span style="font-size:13px;font-family:'EB Garamond',serif;color:#aaa">tap</span>`;
-    return`<div class="hole-row">
+    const driver=getTeeShots(ti)[i];
+    return`<div class="hole-row" style="grid-template-columns:1.8rem 2.6rem 3rem 1fr auto auto">
       <div class="hole-num">${i+1}</div>
       <div class="hole-par">Par<br>${par}</div>
       <div class="hole-yards">${yards}<br>yds</div>
       <button class="score-btn${s!==null?"":" no-score"}" onclick="openPicker(${ti},${i})"
         style="${s!==null?"border-color:"+t.color+";color:"+t.color:""}">${label}</button>
+      <button class="tee-btn${driver?" has-driver":""}" onclick="recordTeeShot(${ti},${i})">
+        <span class="tee-btn-label">Drive</span>${driver?driver.split(" ")[0]:"?"}</button>
       <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
     </div>`;
   }
