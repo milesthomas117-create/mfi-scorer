@@ -285,34 +285,38 @@ const PARS  = [4,4,3,4,4,3,5,4,4,4,5,3,4,4,3,5,3,4];
 const YARDS = [422,362,143,393,342,162,436,255,354,398,512,125,379,411,118,470,127,276];
 const TEAM_PLAYERS = [
   ["Alex","Clayds","John","Sarge"],          // John's Team  (alphabetical)
-  ["Aaron","Harry Blight","Miggy","Miles"],  // Miles' Team
+  ["Aaron","Blight","Miggy","Miles"],  // Miles' Team
   ["Baylis","Charlie","Frazer","Vinnie"],    // Charlie's Team
   ["George","Lawrence","Sewell","Turns"],    // Turns' Team
   ["Ayden","David","Theo","Tom"]             // Theo's Team
 ];
-const DRIVES_COLLECTION = "mfi2026_drives";
 const HOLES = 18, LEADERBOARD_LOCK_HOLE = 15, COLLECTION = "mfi2026";
 const SMIN = 1, SMAX = 12, ITEM_H = 54, PAD = 2;
 const CACHE_KEY = ti => "mfi2026_team_" + ti;
 const SESSION_KEY = "mfi2026_session";
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let db = null, isOnline = true, liveUnsub = null, drivesUnsub = null;
+let db = null, isOnline = true, liveUnsub = null;
 let currentTeam = null; // logged-in team index
 let state = {
   scores:    TEAMS.map(() => Array(HOLES).fill(null)),
   submitted: TEAMS.map(() => false),
   teeShots:  TEAMS.map(() => Array(HOLES).fill(null))
 };
-// drives[ti][playerName] = count
-let drives = TEAMS.map((t,ti) => {
+// drives tally is always computed from teeShots — single source of truth
+function computeDrives(ti) {
   const d = {};
   TEAM_PLAYERS[ti].forEach(p => d[p] = 0);
+  state.teeShots[ti].forEach(player => {
+    if(player && d.hasOwnProperty(player)) d[player]++;
+  });
   return d;
-});
+}
+function getDrives(ti){ return computeDrives(ti); }
 let pTeam = null, pHole = null, pScrollTimer = null;
 // Drive picker state
 let dPickerTeam = null, dPickerHole = null, dPickerScrollTimer = null, dPickerResolve = null;
+// (drives tally is always computed live from state.teeShots — no separate store)
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.getElementById("mfi-date").textContent  = EVENT_DATE;
@@ -446,21 +450,20 @@ async function launchApp() {
   updateSyncBadge();
 
   // Step 1: Load from cache instantly and render — user sees scorecard immediately
-  for (let ti = 0; ti < TEAMS.length; ti++) { loadFromCache(ti); loadDrivesFromCache(ti); }
+  for (let ti = 0; ti < TEAMS.length; ti++) { loadFromCache(ti); }
   renderTabs();
   renderScoreCard();
   renderDashboard();
   renderDrives();
 
   // Step 2: Sync Firebase in the background
-  Promise.all([loadAllScores(), loadAllDrives()]).then(() => {
+  loadAllScores().then(() => {
     renderTabs();
     renderScoreCard();
     renderDashboard();
     renderDrives();
   });
   startLiveListener();
-  startDrivesListener();
 }
 
 function updateSyncBadge() {
@@ -530,6 +533,7 @@ function startLiveListener() {
     renderTabs();
     if (currentTeam !== null) renderScoreCard();
     if (document.getElementById("dashboard").classList.contains("active")) renderDashboard();
+    if (document.getElementById("drives-tab").classList.contains("active")) renderDrives();
     const el = document.getElementById("lastUpdate");
     if (el) el.textContent = "Updated " + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   }, () => {
@@ -701,55 +705,7 @@ function closeDrivePicker(commit){
 // ─── Drives Firebase ──────────────────────────────────────────────────────────
 function drivesDocId(ti){ return "team_"+ti; }
 
-function saveDrivesToCache(ti){
-  try{ localStorage.setItem("mfi2026_drives_"+ti, JSON.stringify(drives[ti])); }catch(e){}
-}
-function loadDrivesFromCache(ti){
-  try{
-    const raw=localStorage.getItem("mfi2026_drives_"+ti);
-    if(!raw) return;
-    const d=JSON.parse(raw);
-    TEAM_PLAYERS[ti].forEach(p=>{ drives[ti][p]=d[p]||0; });
-  }catch(e){}
-}
-async function saveDrives(ti){
-  saveDrivesToCache(ti);
-  if(!db||!isOnline) return;
-  try{
-    await db.collection(DRIVES_COLLECTION).doc(drivesDocId(ti)).set({
-      teamId:ti, teamName:TEAMS[ti].name,
-      drives:drives[ti],
-      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }catch(e){ showToast("Drive save failed — saved locally"); }
-}
-async function loadAllDrives(){
-  if(!db) return;
-  try{
-    const snap=await db.collection(DRIVES_COLLECTION).get();
-    snap.forEach(doc=>{
-      const d=doc.data(), ti=parseInt(doc.id.replace("team_",""));
-      if(isNaN(ti)||ti<0||ti>=TEAMS.length) return;
-      TEAM_PLAYERS[ti].forEach(p=>{ drives[ti][p]=d.drives?d.drives[p]||0:0; });
-      saveDrivesToCache(ti);
-    });
-  }catch(e){}
-}
-function startDrivesListener(){
-  if(!db) return;
-  if(drivesUnsub) drivesUnsub();
-  drivesUnsub=db.collection(DRIVES_COLLECTION).onSnapshot(snap=>{
-    snap.docChanges().forEach(ch=>{
-      const d=ch.doc.data(), ti=parseInt(ch.doc.id.replace("team_",""));
-      if(isNaN(ti)||ti<0||ti>=TEAMS.length) return;
-      TEAM_PLAYERS[ti].forEach(p=>{ drives[ti][p]=d.drives?d.drives[p]||0:0; });
-      saveDrivesToCache(ti);
-    });
-    if(document.getElementById("drives-tab").classList.contains("active")) renderDrives();
-    const el=document.getElementById("drivesLastUpdate");
-    if(el) el.textContent="Updated "+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  });
-}
+// Drives are computed from teeShots (stored in team doc) — no separate collection needed.
 
 // ─── Tee shot recording ───────────────────────────────────────────────────────
 // state.teeShots[ti] = array of player names indexed by hole
@@ -759,13 +715,13 @@ function getTeeShots(ti){ return state.teeShots[ti]; }
 async function recordTeeShot(ti, hi){
   const player = await openDrivePicker(ti, hi);
   if(!player) return;
-  const prev = state.teeShots[ti][hi];
   state.teeShots[ti][hi] = player;
-  // Adjust tally
-  if(prev && drives[ti][prev]>0) drives[ti][prev]--;
-  drives[ti][player] = (drives[ti][player]||0)+1;
+  // drives tally is always computed from teeShots, no manual counter needed
   renderScoreCard();
-  await saveDrives(ti);
+  // Save teeShots in team doc (scores save), and drives separately for drives tab
+  clearTimeout(window._st);
+  window._st = setTimeout(() => saveTeamScores(ti), 400);
+  renderDrives();
   showToast(player+" recorded as driver — Hole "+(hi+1));
 }
 
@@ -775,10 +731,11 @@ function renderDrives(){
   if(!el) return;
   el.innerHTML=TEAMS.map((t,ti)=>{
     const players=TEAM_PLAYERS[ti];
-    const total=players.reduce((a,p)=>a+(drives[ti][p]||0),0);
-    const max=Math.max(1,...players.map(p=>drives[ti][p]||0));
+    const tally=computeDrives(ti);
+    const total=players.reduce((a,p)=>a+(tally[p]||0),0);
+    const max=Math.max(1,...players.map(p=>tally[p]||0));
     const rows=players.map(p=>{
-      const cnt=drives[ti][p]||0;
+      const cnt=tally[p]||0;
       const pct=Math.round((cnt/max)*100);
       const met=cnt>=4;
       return`<div class="drives-player" style="${met?"background:#eaf7f2;border-color:#a8dece":""}">
