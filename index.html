@@ -301,7 +301,8 @@ let db = null, isOnline = true, liveUnsub = null, drivesUnsub = null;
 let currentTeam = null; // logged-in team index
 let state = {
   scores:    TEAMS.map(() => Array(HOLES).fill(null)),
-  submitted: TEAMS.map(() => false)
+  submitted: TEAMS.map(() => false),
+  teeShots:  TEAMS.map(() => Array(HOLES).fill(null))
 };
 // drives[ti][playerName] = count
 let drives = TEAMS.map((t,ti) => {
@@ -340,7 +341,6 @@ window.addEventListener("offline", () => { isOnline=false; updateSyncBadge(); })
 // ─── Local cache helpers ──────────────────────────────────────────────────────
 function saveToCache(ti) {
   try {
-    getTeeShots(ti);
     localStorage.setItem(CACHE_KEY(ti), JSON.stringify({
       scores:    state.scores[ti],
       submitted: state.submitted[ti],
@@ -357,7 +357,6 @@ function loadFromCache(ti) {
     const d = JSON.parse(raw);
     state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
     state.submitted[ti] = d.submitted || false;
-    getTeeShots(ti); // ensure initialised
     state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
     return true;
   } catch(e) { return false; }
@@ -481,7 +480,6 @@ async function loadAllScores() {
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted || false;
-      getTeeShots(ti);
       state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
@@ -496,7 +494,6 @@ async function saveTeamScores(ti) {
   setSaving(true);
   if (!db || !isOnline) { setSaving(false, true); return; }
   try {
-    getTeeShots(ti);
     await db.collection(COLLECTION).doc("team_"+ti).set({
       teamId: ti, teamName: TEAMS[ti].name,
       scores: state.scores[ti], submitted: state.submitted[ti],
@@ -527,7 +524,6 @@ function startLiveListener() {
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted || false;
-      getTeeShots(ti);
       state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
@@ -644,7 +640,7 @@ function openDrivePicker(ti, hi) {
   return new Promise(resolve => {
     dPickerTeam=ti; dPickerHole=hi; dPickerResolve=resolve;
     const players = TEAM_PLAYERS[ti]; // already alphabetical
-    const current = state.scores[ti] ? (state.teeShots||[])[hi] || null : null;
+    const current = state.teeShots[ti][hi] || null;
     document.getElementById("drivePickerTitle").textContent = "Hole "+(hi+1)+" — Who drove?";
     document.getElementById("drivePickerSub").textContent = TEAMS[ti].name;
     buildDriveDrum(players, current);
@@ -758,13 +754,13 @@ function startDrivesListener(){
 // ─── Tee shot recording ───────────────────────────────────────────────────────
 // state.teeShots[ti] = array of player names indexed by hole
 // We store this in the main team doc to keep things together
-function getTeeShots(ti){ return state.teeShots||(state.teeShots=TEAMS.map(()=>Array(HOLES).fill(null))); }
+function getTeeShots(ti){ return state.teeShots[ti]; }
 
 async function recordTeeShot(ti, hi){
   const player = await openDrivePicker(ti, hi);
   if(!player) return;
-  const prev = getTeeShots(ti)[hi];
-  getTeeShots(ti)[hi] = player;
+  const prev = state.teeShots[ti][hi];
+  state.teeShots[ti][hi] = player;
   // Adjust tally
   if(prev && drives[ti][prev]>0) drives[ti][prev]--;
   drives[ti][player] = (drives[ti][player]||0)+1;
@@ -784,13 +780,15 @@ function renderDrives(){
     const rows=players.map(p=>{
       const cnt=drives[ti][p]||0;
       const pct=Math.round((cnt/max)*100);
-      const isMe=currentTeam===ti && p===(TEAM_PLAYERS[ti].find(x=>x.toLowerCase()===TEAMS[ti].name.split("'")[0].toLowerCase())||"");
-      return`<div class="drives-player">
+      const met=cnt>=4;
+      return`<div class="drives-player" style="${met?"background:#eaf7f2;border-color:#a8dece":""}">
         <div style="flex:1">
-          <div class="drives-player-name${isMe?" me":""}">${p}</div>
-          <div class="drives-bar"><div class="drives-bar-fill" style="width:${pct}%"></div></div>
+          <div class="drives-player-name" style="${met?"color:#085041;font-weight:700":""}">
+            ${p}${met?" ✓":""}
+          </div>
+          <div class="drives-bar"><div class="drives-bar-fill" style="width:${pct}%;background:${met?"#085041":"#1a4a1a"}"></div></div>
         </div>
-        <div class="drives-count">${cnt}</div>
+        <div class="drives-count" style="${met?"color:#085041":""}">${cnt}</div>
       </div>`;
     }).join("");
     return`<div class="drives-team-block">
@@ -850,7 +848,7 @@ function renderScoreCard(){
       </div>`;
     }
     const label=s!==null?s:`<span style="font-size:13px;font-family:'EB Garamond',serif;color:#aaa">tap</span>`;
-    const driver=getTeeShots(ti)[i];
+    const driver=state.teeShots[ti][i];
     return`<div class="hole-row" style="grid-template-columns:1.8rem 2.6rem 3rem 1fr auto auto">
       <div class="hole-num">${i+1}</div>
       <div class="hole-par">Par<br>${par}</div>
