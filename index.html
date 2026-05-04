@@ -841,7 +841,7 @@ function renderScoreCard(){
         <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
       </div>`;
     }
-    const label=s!==null?s:`<span style="font-size:13px;font-family:'EB Garamond',serif;color:#aaa">tap</span>`;
+    const label=s!==null?s:`<span style="font-size:10px;font-family:'EB Garamond',serif;color:#aaa;letter-spacing:0.08em;text-transform:uppercase">Score</span>`;
     const driver=state.teeShots[ti][i];
     return`<div class="hole-row" style="grid-template-columns:1.8rem 2.6rem 3rem 1fr auto auto">
       <div class="hole-num">${i+1}</div>
@@ -850,7 +850,7 @@ function renderScoreCard(){
       <button class="score-btn${s!==null?"":" no-score"}" onclick="openPicker(${ti},${i})"
         style="${s!==null?"border-color:"+t.color+";color:"+t.color:""}">${label}</button>
       <button class="tee-btn${driver?" has-driver":""}" onclick="recordTeeShot(${ti},${i})">
-        <span class="tee-btn-label">Drive</span>${driver?driver.split(" ")[0]:"?"}</button>
+        <span class="tee-btn-label">Tee Shot</span>${driver?driver.split(" ")[0]:"—"}</button>
       <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
     </div>`;
   }
