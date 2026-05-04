@@ -850,7 +850,7 @@ function renderScoreCard(){
       <button class="score-btn${s!==null?"":" no-score"}" onclick="openPicker(${ti},${i})"
         style="${s!==null?"border-color:"+t.color+";color:"+t.color:""}">${label}</button>
       <button class="tee-btn${driver?" has-driver":""}" onclick="recordTeeShot(${ti},${i})">
-        <span class="tee-btn-label">Tee Shot</span>${driver?driver.split(" ")[0]:"—"}</button>
+        <span class="tee-btn-label">Tee Shot</span>${driver?driver.split(" ")[0]:""}</button>
       <div class="diff-pill ${diff?diff.cls:"diff-empty"}">${diff?diff.label:"—"}</div>
     </div>`;
   }
