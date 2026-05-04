@@ -6,12 +6,12 @@
 <title>The Miles Fraser Invitational</title>
 <script>
   const FIREBASE_CONFIG = {
-    apiKey:            "YOUR_API_KEY",
-    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId:         "YOUR_PROJECT_ID",
-    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId:             "YOUR_APP_ID"
+    apiKey:            "AIzaSyDigCA3fI_IomnfVaEFdLM0LPgRdpGakv8",
+    authDomain:        "miles-fraser-invitational.firebaseapp.com",
+    projectId:         "miles-fraser-invitational",
+    storageBucket:     "miles-fraser-invitational.appspot.com",
+    messagingSenderId: "194161219043",
+    appId:             "1:194161219043:web:14cb43a028d5908493bcd6"
   };
   const EVENT_DATE  = "30 May 2026";
   const EVENT_VENUE = "Toot Hill Golf Club · Ongar, Essex";
@@ -339,8 +339,23 @@ try {
   document.getElementById("errorBanner").classList.add("show");
 }
 
+// Restart listener when user returns to the tab (phone screen wake, tab switch back)
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && db && currentTeam !== null) {
+    startLiveListener();
+    loadAllScores().then(() => { renderTabs(); renderScoreCard(); renderDashboard(); renderDrives(); });
+  }
+});
+
 // Monitor online/offline
-window.addEventListener("online",  () => { isOnline=true;  updateSyncBadge(); tryFlushCache(); });
+window.addEventListener("online", () => {
+  isOnline = true; updateSyncBadge();
+  // Force Firestore to reconnect after network drop
+  if (db) { firebase.firestore().enableNetwork().catch(()=>{}); }
+  tryFlushCache();
+  startLiveListener(); // restart listener in case it died
+  loadAllScores().then(() => { renderTabs(); renderScoreCard(); renderDashboard(); renderDrives(); });
+});
 window.addEventListener("offline", () => { isOnline=false; updateSyncBadge(); });
 
 // ─── Local cache helpers ──────────────────────────────────────────────────────
@@ -489,7 +504,15 @@ function updateSyncBadge() {
   const el = document.getElementById("syncBadge");
   if (!el) return;
   el.className = isOnline ? "sync-badge" : "offline-badge";
-  el.textContent = isOnline ? "● Online" : "○ Offline — saving locally";
+  if (isOnline) {
+    el.textContent = "● Online";
+    el.onclick = null;
+    el.style.cursor = "default";
+  } else {
+    el.textContent = "○ Offline — tap to retry";
+    el.style.cursor = "pointer";
+    el.onclick = () => { startLiveListener(); loadAllScores().then(() => { renderTabs(); renderScoreCard(); renderDashboard(); renderDrives(); }); };
+  }
 }
 
 // ─── Firebase ─────────────────────────────────────────────────────────────────
@@ -524,7 +547,13 @@ async function saveTeamScores(ti) {
     });
     clearCache(ti);
   } catch(e) {
-    showToast("Saved locally — will sync when online");
+    if (e.code === "permission-denied") {
+      showToast("⚠ Firebase rules blocking saves — check console");
+      document.getElementById("errorBanner").textContent = "⚠ Firebase permission denied — scores saved locally only. Go to Firebase Console → Firestore → Rules and set: allow read, write: if true;";
+      document.getElementById("errorBanner").classList.add("show");
+    } else {
+      showToast("Saved locally — will sync when online");
+    }
   }
   setSaving(false);
 }
@@ -544,20 +573,30 @@ function startLiveListener() {
     snap.docChanges().forEach(ch => {
       const d = ch.doc.data(), ti = parseInt(ch.doc.id.replace("team_",""));
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
-      // Always trust Firebase — it's the source of truth
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
       state.submitted[ti] = d.submitted === true;
       state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
+    isOnline = true;
+    updateSyncBadge();
+    document.getElementById("errorBanner").classList.remove("show");
     renderTabs();
     if (currentTeam !== null) renderScoreCard();
     if (document.getElementById("dashboard").classList.contains("active")) renderDashboard();
     if (document.getElementById("drives-tab").classList.contains("active")) renderDrives();
     const el = document.getElementById("lastUpdate");
     if (el) el.textContent = "Updated " + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  }, () => {
+  }, (err) => {
     isOnline = false; updateSyncBadge();
+    // Show specific error to help diagnose
+    const banner = document.getElementById("errorBanner");
+    if (err.code === "permission-denied") {
+      banner.textContent = "⚠ Firebase permission denied — go to Firebase Console → Firestore → Rules and set: allow read, write: if true;";
+    } else {
+      banner.textContent = "⚠ Live sync error: " + err.message + " — scores saving locally only.";
+    }
+    banner.classList.add("show");
   });
 }
 
