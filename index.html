@@ -194,6 +194,7 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
       </div>
       <div class="user-bar-status">
         <span id="syncBadge"></span>
+        <span id="adminResetBtn"></span>
         <button class="logout-btn" onclick="doLogout()">Sign out</button>
       </div>
     </div>
@@ -448,6 +449,14 @@ async function launchApp() {
   document.getElementById("userBarName").textContent = t.name;
   document.getElementById("userDot").style.background = t.color;
   updateSyncBadge();
+
+  // Show admin reset button only for Miles (team id 1)
+  const adminBtn = document.getElementById("adminResetBtn");
+  if (currentTeam === 1) {
+    adminBtn.innerHTML = `<button class="logout-btn" style="color:#791F1F;margin-right:6px" onclick="adminResetAll()">⚠ Reset all</button>`;
+  } else {
+    adminBtn.innerHTML = "";
+  }
 
   // Step 1: Load from cache instantly and render — user sees scorecard immediately
   for (let ti = 0; ti < TEAMS.length; ti++) { loadFromCache(ti); }
@@ -895,10 +904,35 @@ function resetScores(ti) {
   if (!confirm("Reset all scores for " + TEAMS[ti].name + "? This cannot be undone.")) return;
   state.scores[ti] = Array(HOLES).fill(null);
   state.submitted[ti] = false;
+  state.teeShots[ti] = Array(HOLES).fill(null);
   renderTabs(); renderScoreCard();
   clearTimeout(window._st);
   window._st = setTimeout(() => saveTeamScores(ti), 400);
   showToast("Scores reset for " + TEAMS[ti].name);
+}
+
+async function adminResetAll() {
+  if (!confirm("⚠ Reset ALL scores and drives for every team?\n\nThis will permanently clear everything and cannot be undone.")) return;
+  if (!confirm("Are you absolutely sure? This clears all 5 teams completely.")) return;
+  for (let ti = 0; ti < TEAMS.length; ti++) {
+    state.scores[ti]    = Array(HOLES).fill(null);
+    state.submitted[ti] = false;
+    state.teeShots[ti]  = Array(HOLES).fill(null);
+    saveToCache(ti);
+    if (db && isOnline) {
+      try {
+        await db.collection(COLLECTION).doc("team_"+ti).set({
+          teamId: ti, teamName: TEAMS[ti].name,
+          scores: state.scores[ti],
+          submitted: false,
+          teeShots: state.teeShots[ti],
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch(e) {}
+    }
+  }
+  renderTabs(); renderScoreCard(); renderDashboard(); renderDrives();
+  showToast("All scores and drives have been reset");
 }
 
 async function submitScores(ti){
