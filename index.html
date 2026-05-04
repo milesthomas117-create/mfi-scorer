@@ -842,7 +842,7 @@ function renderScoreCard(){
       </div>`;
     }
     const label=s!==null
-      ? `<span class="tee-btn-label">Score</span><span style="font-family:'Playfair Display',serif;font-size:20px;color:${s!==null?t.color:"#aaa"}">${s}</span>`
+      ? `<span class="tee-btn-label">Score</span><span style="font-family:'Playfair Display',serif;font-size:20px;line-height:1;display:block;color:${t.color}">${s}</span>`
       : `<span class="tee-btn-label">Score</span>`;
     const driver=state.teeShots[ti][i];
     return`<div class="hole-row" style="grid-template-columns:1.8rem 3.2rem 3.6rem 1fr auto auto">
