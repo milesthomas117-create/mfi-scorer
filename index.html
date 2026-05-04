@@ -361,7 +361,7 @@ function loadFromCache(ti) {
     if (!raw) return false;
     const d = JSON.parse(raw);
     state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
-    state.submitted[ti] = d.submitted || false;
+    state.submitted[ti] = d.submitted === true;
     state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
     return true;
   } catch(e) { return false; }
@@ -401,9 +401,19 @@ async function tryFlushCache() {
     if (!raw) continue;
     try {
       const d = JSON.parse(raw);
+      // First check Firebase to make sure we're not overwriting a reset
+      const doc = await db.collection(COLLECTION).doc("team_"+ti).get();
+      if (doc.exists) {
+        const server = doc.data();
+        // If server has a newer resetAt than our cache savedAt, don't flush — server wins
+        const serverReset = server.resetAt ? server.resetAt.toMillis() : 0;
+        const cacheSaved  = d.savedAt || 0;
+        if (serverReset > cacheSaved) { clearCache(ti); continue; }
+      }
       await db.collection(COLLECTION).doc("team_"+ti).set({
         teamId: ti, teamName: TEAMS[ti].name,
-        scores: d.scores, submitted: d.submitted,
+        scores: d.scores, submitted: d.submitted === true,
+        teeShots: d.teeShots || Array(HOLES).fill(null),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       clearCache(ti);
@@ -491,7 +501,7 @@ async function loadAllScores() {
       const d = doc.data(), ti = parseInt(doc.id.replace("team_",""));
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
-      state.submitted[ti] = d.submitted || false;
+      state.submitted[ti] = d.submitted === true; // explicit — false stays false after reset
       state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
@@ -535,7 +545,7 @@ function startLiveListener() {
       const d = ch.doc.data(), ti = parseInt(ch.doc.id.replace("team_",""));
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
-      state.submitted[ti] = d.submitted || false;
+      state.submitted[ti] = d.submitted === true; // explicit — false stays false after reset
       state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
@@ -951,8 +961,12 @@ async function adminResetAll() {
       } catch(e) { showToast("Reset failed for " + TEAMS[ti].name + " — check connection"); }
     }
   }
-  renderTabs(); renderScoreCard(); renderDashboard(); renderDrives();
-  showToast("All scores and drives have been reset");
+  // Force full re-render so submitted lock is immediately lifted on Miles' screen too
+  renderTabs();
+  renderScoreCard();
+  renderDashboard();
+  renderDrives();
+  showToast("All scores and drives have been reset ✓");
 }
 
 async function submitScores(ti){
