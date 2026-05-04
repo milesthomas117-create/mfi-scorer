@@ -640,8 +640,23 @@ function toVsPar(s,p){
   return{label:"+"+d,cls:"diff-double"};
 }
 function leaderboardLocked(){
-  // Lock for everyone once ANY team has played 15 or more holes
+  // Hides leaderboard tab once ANY team hits hole 15
   return state.scores.some(sc => sc.filter(s=>s!==null).length >= LEADERBOARD_LOCK_HOLE);
+}
+function allCardsSubmitted(){
+  return state.submitted.every(s => s === true);
+}
+function canSeeLeaderboard(){
+  // Miles (id 1): sees it when all 5 cards submitted, OR before hole 15 lock
+  // Everyone else: never sees it once locked, and never sees final results
+  if (currentTeam === 1) {
+    // If all submitted — show full results regardless of lock
+    if (allCardsSubmitted()) return true;
+    // Otherwise normal rule: hide once locked
+    return !leaderboardLocked();
+  }
+  // All other teams: hide once any team hits hole 15, never show after
+  return !leaderboardLocked();
 }
 function showToast(msg){
   const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
@@ -770,17 +785,19 @@ function renderDrives(){
 
 // ─── Render ───────────────────────────────────────────────────────────────────
 function renderTabs(){
-  const locked=leaderboardLocked();
+  const canLb=canSeeLeaderboard();
   const cur=document.querySelector(".section.active");
   const curId=cur?cur.id:"entry";
+  // If Miles and all submitted, show a special 'Results' label
+  const lbLabel = (currentTeam===1 && allCardsSubmitted()) ? "🏆 Results" : "Leaderboard";
   document.querySelector(".tabs").innerHTML=`
     <button class="tab${curId==="entry"?" active":""}" id="tab-entry" onclick="switchTab('entry')">Scores</button>
-    ${locked?"":` <button class="tab${curId==="dashboard"?" active":""}" id="tab-dashboard" onclick="switchTab('dashboard')">Leaderboard</button>`}
+    ${canLb?` <button class="tab${curId==="dashboard"?" active":""}" id="tab-dashboard" onclick="switchTab('dashboard')">${lbLabel}</button>`:""}
     <button class="tab${curId==="drives-tab"?" active":""}" id="tab-drives-tab" onclick="switchTab('drives-tab')">Drives</button>`;
-  if(locked&&document.getElementById("dashboard").classList.contains("active")) switchTab("entry");
+  if(!canLb&&document.getElementById("dashboard").classList.contains("active")) switchTab("entry");
 }
 function switchTab(tab){
-  if(tab==="dashboard"&&leaderboardLocked())return;
+  if(tab==="dashboard"&&!canSeeLeaderboard())return;
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   const a=document.getElementById("tab-"+tab);if(a)a.classList.add("active");
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
@@ -918,17 +935,20 @@ async function adminResetAll() {
     state.scores[ti]    = Array(HOLES).fill(null);
     state.submitted[ti] = false;
     state.teeShots[ti]  = Array(HOLES).fill(null);
+    // Clear local cache so other devices don't restore old submitted state
+    clearCache(ti);
     saveToCache(ti);
     if (db && isOnline) {
       try {
         await db.collection(COLLECTION).doc("team_"+ti).set({
           teamId: ti, teamName: TEAMS[ti].name,
-          scores: state.scores[ti],
+          scores: Array(HOLES).fill(null),
           submitted: false,
-          teeShots: state.teeShots[ti],
+          teeShots: Array(HOLES).fill(null),
+          resetAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-      } catch(e) {}
+      } catch(e) { showToast("Reset failed for " + TEAMS[ti].name + " — check connection"); }
     }
   }
   renderTabs(); renderScoreCard(); renderDashboard(); renderDrives();
@@ -937,9 +957,14 @@ async function adminResetAll() {
 
 async function submitScores(ti){
   state.submitted[ti]=true;
+  renderTabs();
   renderScoreCard();
   await saveTeamScores(ti);
   showToast(TEAMS[ti].name+" — card submitted");
+  // If all now submitted, prompt Miles to view results
+  if(currentTeam===1 && allCardsSubmitted()){
+    showToast("All cards in — Results now available!");
+  }
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
