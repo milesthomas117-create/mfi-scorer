@@ -768,19 +768,21 @@ function renderDrives(){
     const players=TEAM_PLAYERS[ti];
     const tally=computeDrives(ti);
     const total=players.reduce((a,p)=>a+(tally[p]||0),0);
-    const max=Math.max(1,...players.map(p=>tally[p]||0));
     const rows=players.map(p=>{
       const cnt=tally[p]||0;
-      const pct=Math.round((cnt/max)*100);
+      const pct=Math.min(100,Math.round((cnt/4)*100)); // 4 drives = target = 100% full bar
       const met=cnt>=4;
-      return`<div class="drives-player" style="${met?"background:#eaf7f2;border-color:#a8dece":""}">
+      const bg=met?"#4a6741":"";           // Masters khaki green
+      const border=met?"#4a6741":"#e0d8c0";
+      const nameCol=met?"#ffffff":"#1a4a1a";
+      const countCol=met?"#ffffff":"#1a4a1a";
+      const barCol=met?"#2d4028":"#1a4a1a";
+      return`<div class="drives-player" style="background:${bg||"#f5f0e8"};border-color:${border}">
         <div style="flex:1">
-          <div class="drives-player-name" style="${met?"color:#085041;font-weight:700":""}">
-            ${p}${met?" ✓":""}
-          </div>
-          <div class="drives-bar"><div class="drives-bar-fill" style="width:${pct}%;background:${met?"#085041":"#1a4a1a"}"></div></div>
+          <div class="drives-player-name" style="color:${nameCol};font-weight:${met?"600":"400"}">${p}</div>
+          <div class="drives-bar"><div class="drives-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
         </div>
-        <div class="drives-count" style="${met?"color:#085041":""}">${cnt}</div>
+        <div class="drives-count" style="color:${countCol}">${cnt}</div>
       </div>`;
     }).join("");
     return`<div class="drives-team-block">
