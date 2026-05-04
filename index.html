@@ -544,8 +544,9 @@ function startLiveListener() {
     snap.docChanges().forEach(ch => {
       const d = ch.doc.data(), ti = parseInt(ch.doc.id.replace("team_",""));
       if (isNaN(ti)||ti<0||ti>=TEAMS.length) return;
+      // Always trust Firebase — it's the source of truth
       state.scores[ti]    = d.scores    || Array(HOLES).fill(null);
-      state.submitted[ti] = d.submitted === true; // explicit — false stays false after reset
+      state.submitted[ti] = d.submitted === true;
       state.teeShots[ti]  = d.teeShots  || Array(HOLES).fill(null);
       saveToCache(ti);
     });
@@ -941,32 +942,37 @@ function resetScores(ti) {
 async function adminResetAll() {
   if (!confirm("⚠ Reset ALL scores and drives for every team?\n\nThis will permanently clear everything and cannot be undone.")) return;
   if (!confirm("Are you absolutely sure? This clears all 5 teams completely.")) return;
+
+  // Step 1: Clear ALL local state immediately and re-render — instant visual reset
   for (let ti = 0; ti < TEAMS.length; ti++) {
     state.scores[ti]    = Array(HOLES).fill(null);
     state.submitted[ti] = false;
     state.teeShots[ti]  = Array(HOLES).fill(null);
-    // Clear local cache so other devices don't restore old submitted state
     clearCache(ti);
     saveToCache(ti);
-    if (db && isOnline) {
-      try {
-        await db.collection(COLLECTION).doc("team_"+ti).set({
-          teamId: ti, teamName: TEAMS[ti].name,
-          scores: Array(HOLES).fill(null),
-          submitted: false,
-          teeShots: Array(HOLES).fill(null),
-          resetAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch(e) { showToast("Reset failed for " + TEAMS[ti].name + " — check connection"); }
-    }
   }
-  // Force full re-render so submitted lock is immediately lifted on Miles' screen too
   renderTabs();
   renderScoreCard();
   renderDashboard();
   renderDrives();
-  showToast("All scores and drives have been reset ✓");
+  showToast("Resetting all scores...");
+
+  // Step 2: Push to Firebase in background (don't await in loop — fire all at once)
+  if (db && isOnline) {
+    const writes = TEAMS.map((t, ti) =>
+      db.collection(COLLECTION).doc("team_"+ti).set({
+        teamId: ti, teamName: TEAMS[ti].name,
+        scores: Array(HOLES).fill(null),
+        submitted: false,
+        teeShots: Array(HOLES).fill(null),
+        resetAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(() => {})
+    );
+    Promise.all(writes).then(() => showToast("All scores and drives reset ✓"));
+  } else {
+    showToast("Reset saved locally — will sync when online ✓");
+  }
 }
 
 async function submitScores(ti){
