@@ -874,7 +874,9 @@ function renderScoreCard(){
         <div class="saving-ind" id="savingIndicator"></div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        ${done?`<span class="submitted-badge">✓ Card submitted</span>`:`
+        ${done?`
+          <button class="reset-btn" onclick="unsubmitScores(${ti})">Unsubmit</button>
+          <span class="submitted-badge">✓ Card submitted</span>`:`
           <button class="reset-btn" onclick="resetScores(${ti})">Reset scores</button>
           <button class="submit-btn" onclick="submitScores(${ti})">Submit card</button>`}
       </div>
@@ -973,6 +975,15 @@ async function adminResetAll() {
   } else {
     showToast("Reset saved locally — will sync when online ✓");
   }
+}
+
+async function unsubmitScores(ti) {
+  if (!confirm("Unsubmit " + TEAMS[ti].name + "'s card? Scores will be kept but the card will be unlocked for editing.")) return;
+  state.submitted[ti] = false;
+  renderTabs();
+  renderScoreCard();
+  await saveTeamScores(ti);
+  showToast(TEAMS[ti].name + " — card unsubmitted");
 }
 
 async function submitScores(ti){
