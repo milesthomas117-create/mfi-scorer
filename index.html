@@ -276,20 +276,18 @@ body{background:#f5f0e8;font-family:'EB Garamond',Georgia,serif;font-size:16px}
 <script>
 // ─── Constants ────────────────────────────────────────────────────────────────
 const TEAMS = [
-  {id:0, name:"John's Team",    username:"john",    password:"John",    color:"#712B13", light:"#FAECE7", handicap:3},
-  {id:1, name:"Miles' Team",   username:"miles",   password:"Miles",   color:"#1a4a1a", light:"#EAF3DE", handicap:0},
-  {id:2, name:"Charlie's Team",username:"charlie", password:"Charlie", color:"#0C447C", light:"#E6F1FB", handicap:0},
-  {id:3, name:"Turns' Team",   username:"turns",   password:"Turns",   color:"#533AB7", light:"#EEEDFE", handicap:0},
-  {id:4, name:"Theo's Team",   username:"theo",    password:"Theo",    color:"#633806", light:"#FAEEDA", handicap:0}
+  {id:0, name:"John's Team",  username:"john",  password:"John",  color:"#712B13", light:"#FAECE7", handicap:2},
+  {id:1, name:"Miles' Team",  username:"miles", password:"Miles", color:"#1a4a1a", light:"#EAF3DE", handicap:0},
+  {id:2, name:"Turns' Team",  username:"turns", password:"Turns", color:"#533AB7", light:"#EEEDFE", handicap:0},
+  {id:3, name:"Theo's Team",  username:"theo",  password:"Theo",  color:"#633806", light:"#FAEEDA", handicap:0}
 ];
 const PARS  = [4,4,3,4,4,3,5,4,4,4,5,3,4,4,3,5,3,4];
 const YARDS = [422,362,143,393,342,162,436,255,354,398,512,125,379,411,118,470,127,276];
 const TEAM_PLAYERS = [
-  ["Alex","Clayds","John","Sarge"],          // John's Team  (alphabetical)
-  ["Aaron","Blight","Miggy","Miles"],  // Miles' Team
-  ["Baylis","Charlie","Frazer","Vinnie"],    // Charlie's Team
-  ["George","Lawrence","Sewell","Turns"],    // Turns' Team
-  ["Ayden","David","Theo","Tom"]             // Theo's Team
+  ["Alex","Clayds","John","Sarge"],      // John's Team  (alphabetical)
+  ["Aaron","Baylis","George","Miles"],   // Miles' Team  (alphabetical)
+  ["Frazer","Lawrence","Sewell","Turns"],// Turns' Team  (alphabetical)
+  ["Ayden","Charlie","Theo","Vinnie"]    // Theo's Team  (alphabetical)
 ];
 const HOLES = 18, LEADERBOARD_LOCK_HOLE = 15, COLLECTION = "mfi2026";
 const SMIN = 1, SMAX = 12, ITEM_H = 54, PAD = 2;
